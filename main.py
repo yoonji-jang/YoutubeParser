@@ -10,26 +10,29 @@ latest = "&sp=CAI%253D"
 platform = "https://www.youtube.com"
 webdriver_options = wd.ChromeOptions()
 webdriver_options.add_argument("headless")
+webdriver_options.add_argument("lang=ko")
 driver = wd.Chrome(executable_path=".\\chromedriver_win32\\chromedriver.exe", options=webdriver_options)
 SCROLL_PAUSE_SEC = 1
+postfix_month_en=" month"
+postfix_month_kr="개월"
 
 #input
 keyword = input("keyword : ")
 start_month = input("start month : ")
-end_month = input("end month : ")
+#end_month = input("end month : ")
 
 exclude_channel = []
 output_path = "./df_just_video.csv"
 try:
     start_date = datetime.strptime(start_month, "%m")
-    end_date = datetime.strptime(end_month, "%m")
+    #end_date = datetime.strptime(end_month, "%m")
 except:
     sys.exit("date error!")
 
 
 #start
 period = datetime.now().month - start_date.month + 1
-period_string = "%d"%period + "개월 전"
+period_string = "%d"%period + postfix_month_kr
 print(period_string)
 
 url = "https://www.youtube.com/results?search_query=" + keyword.replace(" ", "+") + latest
@@ -44,7 +47,7 @@ while True:
 
     #TODO : add end condition!! ( no more contents)
 
-    dates = soup.select("#metadata-line > span:nth-child(2)")
+    dates = soup.select("#metadata-line > span:nth-of-type(2)")
     print(dates)
 
     if period_string in "%s"%dates:
