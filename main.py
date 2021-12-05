@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import time
 from datetime import datetime
 import sys
+from webdriver_manager.chrome import ChromeDriverManager
 
 # define environment
 latest = "&sp=CAI%253D"
@@ -11,7 +12,8 @@ platform = "https://www.youtube.com"
 webdriver_options = wd.ChromeOptions()
 webdriver_options.add_argument("headless")
 webdriver_options.add_argument("lang=ko")
-driver = wd.Chrome(executable_path=".\\chromedriver_win32\\chromedriver.exe", options=webdriver_options)
+driver = wd.Chrome(ChromeDriverManager().install(), options=webdriver_options)
+
 SCROLL_PAUSE_SEC = 1
 postfix_month_en=" month"
 postfix_month_kr="개월"
@@ -50,13 +52,13 @@ while True:
     #TODO : add end condition!! ( no more contents)
 
     dates = soup.select("#metadata-line > span:nth-of-type(2)")
-    print(dates)
+    #print(dates)
 
     if period_string in "%s"%dates:
         print("find!!!" + period_string)
         break
 
-    print("scroll")
+    #print("scroll")
     driver.execute_script("window.scrollTo(0, document.getElementById('content').scrollHeight);")
     time.sleep(SCROLL_PAUSE_SEC)
 
