@@ -17,21 +17,23 @@ postfix_month_en=" month"
 postfix_month_kr="개월"
 
 #input
-keyword = input("keyword : ")
-start_month = input("start month : ")
-#end_month = input("end month : ")
+input_file = open(".\input.txt", "r", encoding="UTF8")
+input_data=input_file.readlines()
+input_file.close()
+#print(input_data)
 
+dict = {}
+for line in input_data:
+    key_value = line.strip().split('=')
+    if len(key_value)==2:
+        dict[key_value[0]] = key_value[1]
+
+keyword = dict["KEYWORD"]
+period = int(dict["PERIOD_MONTH"])
+output_path = dict["OUTPUT"]
 exclude_channel = []
-output_path = "./df_just_video.csv"
-try:
-    start_date = datetime.strptime(start_month, "%m")
-    #end_date = datetime.strptime(end_month, "%m")
-except:
-    sys.exit("date error!")
-
 
 #start
-period = datetime.now().month - start_date.month + 1
 period_string = "%d"%period + postfix_month_kr
 print(period_string)
 

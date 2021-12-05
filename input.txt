@@ -1,0 +1,3 @@
+KEYWORD=갤럭시 북
+PERIOD_MONTH=3
+OUTPUT=output.csv
