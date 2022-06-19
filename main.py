@@ -6,6 +6,11 @@ from datetime import datetime
 import sys
 from webdriver_manager.chrome import ChromeDriverManager
 
+
+# version info
+VERSION = 2.0
+print("[Info] YoutubeParser V" + str(VERSION))
+
 # define environment
 latest = "&sp=CAI%253D"
 platform = "https://www.youtube.com"
@@ -22,7 +27,7 @@ postfix_month_kr="개월"
 input_file = open(".\input.txt", "r", encoding="UTF8")
 input_data=input_file.readlines()
 input_file.close()
-#print(input_data)
+print("[Info] Done reading input.txt")
 
 dict = {}
 for line in input_data:
@@ -36,6 +41,7 @@ output_path = dict["OUTPUT"]
 exclude_channel = []
 
 #start
+print("[Info] Start to parse youtube information")
 period_string = "%d"%period + postfix_month_kr
 print(period_string)
 
@@ -49,7 +55,7 @@ while True:
     soup = BeautifulSoup(html, "html.parser")
     end = soup.select("#message")
 
-    #TODO : add end condition!! ( no more contents)
+    # TODO : add end condition!! ( no more contents)
 
     dates = soup.select("#metadata-line > span:nth-of-type(2)")
     #print(dates)
@@ -88,8 +94,8 @@ for thumbnail in thumbnails:
         "#count > ytd-video-view-count-renderer > span.short-view-count.style-scope.ytd-video-view-count-renderer")
     subscriber = soup.select_one("#owner-sub-count")
 
-    if len(channel) <= 0 or len(view) <= 0 or len(date) <= 0 or len(subscriber) <= 0:
-        print("some information is not parsed!!")
+    if channel == None or view == None or date == None or subscriber == None or len(channel) <= 0 or len(view) <= 0 or len(date) <= 0 or len(subscriber) <= 0:
+        print("[Warning] Some information is not parsed!!")
         continue
 
 #    print(channel.get_text())
