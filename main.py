@@ -1,4 +1,5 @@
 from selenium import webdriver as wd
+from selenium.webdriver.chrome.service import Service
 import pandas as pd
 from bs4 import BeautifulSoup
 import time
@@ -17,7 +18,7 @@ platform = "https://www.youtube.com"
 webdriver_options = wd.ChromeOptions()
 webdriver_options.add_argument("headless")
 webdriver_options.add_argument("lang=ko")
-driver = wd.Chrome(ChromeDriverManager().install(), options=webdriver_options)
+driver = wd.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver_options)
 
 SCROLL_PAUSE_SEC = 1
 postfix_month_en=" month"
@@ -37,18 +38,20 @@ for line in input_data:
 
 keyword = dict["KEYWORD"]
 period = int(dict["PERIOD_MONTH"])
+period_string = dict["PERIOD_STRING"]
 output_path = dict["OUTPUT"]
 exclude_channel = []
 
 #start
 print("[Info] Start to parse youtube information")
-period_string = "%d"%period + postfix_month_kr
+#period_string = "%d"%period + postfix_month_kr
 print(period_string)
 
 url = "https://www.youtube.com/results?search_query=" + keyword.replace(" ", "+") + latest
 print("search : " + url)
 driver.get(url)
 
+scroll_cnt=0
 
 while True:
     html = driver.page_source
@@ -63,10 +66,11 @@ while True:
     if period_string in "%s"%dates:
         print("find!!!" + period_string)
         break
-
-    #print("scroll")
+    if scroll_cnt%20==0:
+        print("scroll")
     driver.execute_script("window.scrollTo(0, document.getElementById('content').scrollHeight);")
     time.sleep(SCROLL_PAUSE_SEC)
+    scroll_cnt+=1
 
 
 thumbnails = soup.select("a#video-title")
