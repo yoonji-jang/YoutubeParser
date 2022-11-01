@@ -9,7 +9,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 # version info
-VERSION = 2.0
+VERSION = 2.1
 print("[Info] YoutubeParser V" + str(VERSION))
 
 # define environment
