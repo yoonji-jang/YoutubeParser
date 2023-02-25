@@ -83,7 +83,7 @@ df_date = []
 df_subscriber = []
 
 for thumbnail in thumbnails:
-    link = "https://www.youtube.com/" + thumbnail.attrs["href"]
+    link = "https://www.youtube.com" + thumbnail.attrs["href"]
     title = thumbnail.attrs["title"]
     print(title + ": " + link)
 
