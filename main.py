@@ -21,8 +21,6 @@ webdriver_options.add_argument("lang=ko")
 driver = wd.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver_options)
 
 SCROLL_PAUSE_SEC = 1
-postfix_month_en=" month"
-postfix_month_kr="개월"
 
 #input
 input_file = open(".\input.txt", "r", encoding="UTF8")
@@ -37,15 +35,13 @@ for line in input_data:
         dict[key_value[0]] = key_value[1]
 
 keyword = dict["KEYWORD"]
-period = int(dict["PERIOD_MONTH"])
 period_string = dict["PERIOD_STRING"]
 output_path = dict["OUTPUT"]
 exclude_channel = []
 
 #start
 print("[Info] Start to parse youtube information")
-#period_string = "%d"%period + postfix_month_kr
-print(period_string)
+print("search for " + period_string)
 
 url = "https://www.youtube.com/results?search_query=" + keyword.replace(" ", "+") + latest
 print("search : " + url)
@@ -58,15 +54,15 @@ while True:
     soup = BeautifulSoup(html, "html.parser")
     end = soup.select("#message")
 
-    # TODO : add end condition!! ( no more contents)
-
-    dates = soup.select("#metadata-line > span:nth-of-type(2)")
+    dates = soup.select("#metadata-line > span:nth-child(4)")
     #print(dates)
 
+    #videos = soup.select("a#video-title")
     if period_string in "%s"%dates:
         print("find!!!" + period_string)
         break
     if scroll_cnt%20==0:
+        print(dates[-1].text)
         print("scroll")
     driver.execute_script("window.scrollTo(0, document.getElementById('content').scrollHeight);")
     time.sleep(SCROLL_PAUSE_SEC)
