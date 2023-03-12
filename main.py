@@ -10,7 +10,7 @@ import re
 
 
 # version info
-VERSION = 2.1
+VERSION = 2.2
 print("[Info] YoutubeParser V" + str(VERSION))
 
 # define environment
