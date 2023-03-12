@@ -6,6 +6,7 @@ import time
 from datetime import datetime
 import sys
 from webdriver_manager.chrome import ChromeDriverManager
+import re
 
 
 # version info
@@ -19,6 +20,7 @@ webdriver_options = wd.ChromeOptions()
 webdriver_options.add_argument("headless")
 webdriver_options.add_argument("lang=ko")
 driver = wd.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver_options)
+driver_video = wd.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver_options)
 
 SCROLL_PAUSE_SEC = 1
 
@@ -36,34 +38,45 @@ for line in input_data:
 
 keyword = dict["KEYWORD"]
 period_string = dict["PERIOD_STRING"]
+period_date = time.strptime(dict["PERIOD_DATE"], "%Y.%m.%d")
 output_path = dict["OUTPUT"]
 exclude_channel = []
 
 #start
 print("[Info] Start to parse youtube information")
-print("search for " + period_string)
+print("[Info] search for " + period_string)
 
 url = "https://www.youtube.com/results?search_query=" + keyword.replace(" ", "+") + latest
-print("search : " + url)
+print("[Info] search : " + url)
 driver.get(url)
 
 scroll_cnt=0
 
+date_video = period_date
 while True:
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
     end = soup.select("#message")
-
     dates = soup.select("#metadata-line > span:nth-child(4)")
     #print(dates)
 
-    #videos = soup.select("a#video-title")
     if period_string in "%s"%dates:
-        print("find!!!" + period_string)
+        print("[Info] find!!!" + period_string)
         break
-    if scroll_cnt%20==0:
-        print(dates[-1].text)
-        print("scroll")
+    if period_date > date_video:
+        print("[Info] Meet the date. stop scroll!!! : ")
+        break
+    if scroll_cnt%10==0:
+        last_video_url = "https://www.youtube.com" + soup.select("a#video-title")[-1].attrs["href"]
+        driver_video.get(last_video_url)
+        time.sleep(3)
+        html_video = driver_video.page_source
+        soup_video = BeautifulSoup(html_video, "html.parser")
+        date_video_str = soup_video.select_one("#info-strings > yt-formatted-string")
+        print("[Info] scroll")
+        if date_video_str != None and len(date_video_str) > 0:
+            date_video = time.strptime(date_video_str.get_text(), "%Y. %m. %d.")
+            print("[Info] current date : " + date_video_str.get_text())
     driver.execute_script("window.scrollTo(0, document.getElementById('content').scrollHeight);")
     time.sleep(SCROLL_PAUSE_SEC)
     scroll_cnt+=1
@@ -122,5 +135,5 @@ df_just_video['구독자 수'] = df_subscriber
 df_just_video.to_csv(output_path, encoding='utf-8-sig', index=False)
 
 driver.quit()
-
+driver_video.quit()
 
