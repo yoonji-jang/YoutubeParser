@@ -72,7 +72,7 @@ def run_search(keyword):
         if period_date > date_video:
             print("[Info] Meet the date. stop scroll!!! : ")
             break
-        if scroll_cnt%10==0:
+        if scroll_cnt%5 == 0:
             last_video_url = "https://www.youtube.com" + soup.select("a#video-title")[-1].attrs["href"]
             driver_video.get(last_video_url)
             time.sleep(3)
