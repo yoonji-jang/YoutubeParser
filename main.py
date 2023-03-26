@@ -43,14 +43,15 @@ for line in input_data:
         dict[key_value[0]] = key_value[1]
 
 input_keywords = list(dict["KEYWORD"].split(','))
-period_string = dict["PERIOD_STRING"]
-period_date = time.strptime(dict["PERIOD_DATE"], "%Y.%m.%d")
+period_date_start = time.strptime(dict["PERIOD_DATE_START"], "%Y.%m.%d")
+period_date_end = time.strptime(dict["PERIOD_DATE_END"], "%Y.%m.%d")
 output_path = dict["OUTPUT"]
 exclude_channel = []
 
+
 def run_search(keyword):
     print("[Info] Start to parse youtube information")
-    print("[Info] search for " + period_string)
+    print("[Info] search for " + dict["PERIOD_DATE_START"] + "~" + dict["PERIOD_DATE_END"])
 
     url = "https://www.youtube.com/results?search_query=" + keyword.replace(" ", "+") + latest
     print("[Info] search : " + url)
@@ -58,7 +59,7 @@ def run_search(keyword):
 
     scroll_cnt=0
 
-    date_video = period_date
+    date_video = period_date_start
     while True:
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
@@ -66,10 +67,7 @@ def run_search(keyword):
         dates = soup.select("#metadata-line > span:nth-child(4)")
         #print(dates)
 
-        if period_string in "%s"%dates:
-            print("[Info] find!!!" + period_string)
-            break
-        if period_date > date_video:
+        if period_date_start > date_video:
             print("[Info] Meet the date. stop scroll!!! : ")
             break
         if scroll_cnt%5 == 0:
@@ -81,8 +79,11 @@ def run_search(keyword):
             date_video_str = soup_video.select_one("#info-strings > yt-formatted-string")
             print("[Info] scroll")
             if date_video_str != None and len(date_video_str) > 0:
-                date_video = time.strptime(date_video_str.get_text(), "%Y. %m. %d.")
-                print("[Info] current scroll date : " + date_video_str.get_text())
+                date_video_list = re.findall("\d+. \d+. \d+", date_video_str.get_text())
+                if len(date_video_list) > 0:
+                    date_str = date_video_list[0]
+                    date_video = time.strptime(date_str, "%Y. %m. %d")
+                    print("[Info] current scroll date : " + date_str)
         driver.execute_script("window.scrollTo(0, document.getElementById('content').scrollHeight);")
         time.sleep(SCROLL_PAUSE_SEC)
         scroll_cnt+=1
@@ -92,15 +93,16 @@ def run_search(keyword):
 def get_video_data(keyword, thumbnails):
     df_data = [
         {
-        '영상제목' :  keyword,
+        '영상제목' :  "",
         '채널명' : "",
         'url' : "",
         '조회수' : "",
         '영상등록날짜' : "",
-        '구독자 수' : ""
+        '구독자 수' : "",
+        '키워드' : ""
         }
     ]
-    for thumbnail in thumbnails:
+    for thumbnail in reversed(thumbnails):
         link = "https://www.youtube.com" + thumbnail.attrs["href"]
         title = thumbnail.attrs["title"]
         print(title + ": " + link)
@@ -126,9 +128,20 @@ def get_video_data(keyword, thumbnails):
             'url' : link,
             '조회수' : view.get_text(),
             '영상등록날짜' : date.get_text(),
-            '구독자 수' : subscriber.get_text()
+            '구독자 수' : subscriber.get_text(),
+            '키워드' : keyword
         }
+
+        date_video_list = re.findall("\d+. \d+. \d+", date.get_text())
+        if len(date_video_list) > 0:
+            date_str = date_video_list[0]
+            date_video = time.strptime(date_str, "%Y. %m. %d")
+            if period_date_start > date_video:
+                continue
+            if period_date_end < date_video:
+                break
         df_data.append(new_data)
+
     return df_data
 
 def make_excel(df_datas, output_path):
@@ -143,7 +156,8 @@ df_output_data = [
         'url' : "",
         '조회수' : "",
         '영상등록날짜' : "",
-        '구독자 수' : ""
+        '구독자 수' : "",
+        '키워드' : ""
     }
 ]
 for keyword in input_keywords:
