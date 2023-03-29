@@ -71,19 +71,23 @@ def run_search(keyword):
             print("[Info] Meet the date. stop scroll!!! : ")
             break
         if scroll_cnt%5 == 0:
-            last_video_url = "https://www.youtube.com" + soup.select("a#video-title")[-1].attrs["href"]
-            driver_video.get(last_video_url)
-            time.sleep(3)
-            html_video = driver_video.page_source
-            soup_video = BeautifulSoup(html_video, "html.parser")
-            date_video_str = soup_video.select_one("#info-strings > yt-formatted-string")
-            print("[Info] scroll")
-            if date_video_str != None and len(date_video_str) > 0:
-                date_video_list = re.findall("\d+. \d+. \d+", date_video_str.get_text())
-                if len(date_video_list) > 0:
-                    date_str = date_video_list[0]
-                    date_video = time.strptime(date_str, "%Y. %m. %d")
-                    print("[Info] current scroll date : " + date_str)
+            try:
+                last_video_url = "https://www.youtube.com" + soup.select("a#video-title")[-1].attrs["href"]
+                driver_video.get(last_video_url)
+                time.sleep(3)
+                html_video = driver_video.page_source
+                soup_video = BeautifulSoup(html_video, "html.parser")
+                date_video_str = soup_video.select_one("#info-strings > yt-formatted-string")
+                print("[Info] scroll")
+                if date_video_str != None and len(date_video_str) > 0:
+                    date_video_list = re.findall("\d+. \d+. \d+", date_video_str.get_text())
+                    if len(date_video_list) > 0:
+                        date_str = date_video_list[0]
+                        date_video = time.strptime(date_str, "%Y. %m. %d")
+                        print("[Info] current scroll date : " + date_str)
+            except Exception as exception:
+                print("[Warning] " + str(exception))
+                continue
         driver.execute_script("window.scrollTo(0, document.getElementById('content').scrollHeight);")
         time.sleep(SCROLL_PAUSE_SEC)
         scroll_cnt+=1
