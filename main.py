@@ -109,6 +109,7 @@ def get_video_data(keyword, thumbnails):
     for thumbnail in reversed(thumbnails):
         link = "https://www.youtube.com" + thumbnail.attrs["href"]
         title = thumbnail.attrs["title"]
+        date_str = ""
         print(title + ": " + link)
 
         driver.get(link)
@@ -126,16 +127,6 @@ def get_video_data(keyword, thumbnails):
             print("[Warning] Some information is not parsed!!")
             continue
 
-        new_data = {
-            '영상제목' :  title,
-            '채널명' : channel.get_text(),
-            'url' : link,
-            '조회수' : view.get_text(),
-            '영상등록날짜' : date.get_text(),
-            '구독자 수' : subscriber.get_text(),
-            '키워드' : keyword
-        }
-
         date_video_list = re.findall("\d+. \d+. \d+", date.get_text())
         if len(date_video_list) > 0:
             date_str = date_video_list[0]
@@ -144,6 +135,16 @@ def get_video_data(keyword, thumbnails):
                 continue
             if period_date_end < date_video:
                 break
+
+        new_data = {
+            '영상제목' :  title,
+            '채널명' : channel.get_text(),
+            'url' : link,
+            '조회수' : view.get_text(),
+            '영상등록날짜' : date_str,
+            '구독자 수' : subscriber.get_text(),
+            '키워드' : keyword
+        }
         df_data.append(new_data)
 
     return df_data
