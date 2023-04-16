@@ -8,6 +8,7 @@ import sys
 from webdriver_manager.chrome import ChromeDriverManager
 import re
 import argparse
+import os
 
 # parse argument
 parser = argparse.ArgumentParser()
@@ -151,7 +152,11 @@ def get_video_data(keyword, thumbnails):
 
 def make_excel(df_datas, output_path):
     df_just_video = pd.DataFrame(df_datas)
-    df_just_video.to_csv(output_path, encoding='utf-8-sig', index=False)
+    ext = os.path.splitext(output_path)[1]
+    if ext == ".csv":
+        df_just_video.to_csv(output_path, encoding='utf-8-sig', index=False)
+    else:
+        df_just_video.to_excel(output_path, encoding='utf-8-sig', index=False)
 
 #start
 df_output_data = [
