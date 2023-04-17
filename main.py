@@ -16,7 +16,7 @@ parser.add_argument('-input', type=str, dest="input_txt", action='store', defaul
 args = parser.parse_args()
 
 # version info
-VERSION = 2.3
+VERSION = 2.4
 print("[Info] YoutubeParser V" + str(VERSION))
 
 # define environment
