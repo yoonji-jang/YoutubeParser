@@ -1,3 +1,4 @@
+import time
 import pandas as pd
 import argparse
 import os
@@ -34,7 +35,8 @@ def make_excel(df_datas, output_path):
 #start
 df_output_data = []
 for keyword in input_keywords:
-    # print("[Info] search for " + period_date_start + "~" + period_date_end)
+    print("[Info] search for " + time.strftime('%Y-%m-%d', period_date_start) + " ~ " + time.strftime('%Y-%m-%d', period_date_end))
+
     thumbnails = run_search(driver, driver_video, keyword, period_date_start)
     df_data = get_video_data(driver, keyword, period_date_start, period_date_end, thumbnails)
     df_output_data += df_data
