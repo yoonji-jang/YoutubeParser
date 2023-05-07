@@ -62,10 +62,10 @@ def get_video_data(driver, keyword, period_date_start, period_date_end, thumbnai
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
 
-        # get date
+        # Get date
         date = soup.select_one("#info-strings > yt-formatted-string")
 
-        # check date
+        # Check date
         if date == None or len(date) <= 0:
             print("[Warning] Date information is not parsed!!")
             continue
@@ -78,15 +78,19 @@ def get_video_data(driver, keyword, period_date_start, period_date_end, thumbnai
             if period_date_end < date_video:
                 break
 
-        # get chennel
+        # Get chennel
         channel = soup.select_one("#text > a")
 
-        # get view
+        # Get subscriber
+        subscriber = soup.select_one("#owner-sub-count")
+
+        # Get view
         view = soup.select_one(
             "#count > ytd-video-view-count-renderer > span.short-view-count.style-scope.ytd-video-view-count-renderer")
 
-        # get subscriber
-        subscriber = soup.select_one("#owner-sub-count")
+        # Get number of likes
+        num_like = soup.select_one("#segmented-like-button > ytd-toggle-button-renderer > yt-button-shape > button > div.cbox.yt-spec-button-shape-next--button-text-content > span")
+
 
         # Add data as dictionary
         new_data = {
@@ -94,7 +98,8 @@ def get_video_data(driver, keyword, period_date_start, period_date_end, thumbnai
             '채널명' : channel.get_text() if channel else "",
             'url' : link,
             '조회수' : view.get_text() if view else "",
-            '영상등록날짜' : time.strftime('%Y.%m.%d', date_video),
+            '좋아요 수' : num_like.get_text() if num_like else "",
+            '영상등록날짜' : time.strftime('%Y.%m.%d', date_video) if date else "",
             '구독자 수' : subscriber.get_text() if subscriber else "",
             '키워드' : keyword
         }
