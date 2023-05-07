@@ -21,9 +21,6 @@ def run_search(driver, driver_video, keyword, period_date_start):
     while True:
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
-        end = soup.select("#message")
-        dates = soup.select("#metadata-line > span:nth-child(4)")
-        #print(dates)
 
         if period_date_start > date_video:
             print("[Info] Meet the date. stop scroll!!! : ")
@@ -64,17 +61,14 @@ def get_video_data(driver, keyword, period_date_start, period_date_end, thumbnai
         time.sleep(5)
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
+
+        # get date
         date = soup.select_one("#info-strings > yt-formatted-string")
 
-        channel = soup.select_one("#text > a")
-        view = soup.select_one(
-            "#count > ytd-video-view-count-renderer > span.short-view-count.style-scope.ytd-video-view-count-renderer")
-        subscriber = soup.select_one("#owner-sub-count")
-
+        # check date
         if date == None or len(date) <= 0:
             print("[Warning] Date information is not parsed!!")
             continue
-
         date_video_list = re.findall("\d+. \d+. \d+", date.get_text())
         if len(date_video_list) > 0:
             date_str = date_video_list[0]
@@ -84,6 +78,17 @@ def get_video_data(driver, keyword, period_date_start, period_date_end, thumbnai
             if period_date_end < date_video:
                 break
 
+        # get chennel
+        channel = soup.select_one("#text > a")
+
+        # get view
+        view = soup.select_one(
+            "#count > ytd-video-view-count-renderer > span.short-view-count.style-scope.ytd-video-view-count-renderer")
+
+        # get subscriber
+        subscriber = soup.select_one("#owner-sub-count")
+
+        # Add data as dictionary
         new_data = {
             '영상제목' :  title,
             '채널명' : channel.get_text() if channel else "",
@@ -95,4 +100,5 @@ def get_video_data(driver, keyword, period_date_start, period_date_end, thumbnai
         }
         df_data.append(new_data)
 
+    # return dictionary
     return df_data
