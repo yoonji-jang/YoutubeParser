@@ -89,7 +89,7 @@ def get_video_data(driver, keyword, period_date_start, period_date_end, thumbnai
             '채널명' : channel.get_text() if channel else "",
             'url' : link,
             '조회수' : view.get_text() if view else "",
-            '영상등록날짜' : date_str,
+            '영상등록날짜' : time.strftime('%Y.%m.%d', date_video),
             '구독자 수' : subscriber.get_text() if subscriber else "",
             '키워드' : keyword
         }
