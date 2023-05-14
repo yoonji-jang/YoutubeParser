@@ -55,7 +55,7 @@ def get_video_data(driver, keyword, period_date_start, period_date_end, thumbnai
         link = "https://www.youtube.com" + thumbnail.attrs["href"]
         title = thumbnail.attrs["title"]
         date_str = ""
-        print(title + ": " + link)
+        print(title + ": " + title)
 
         driver.get(link)
         time.sleep(5)
