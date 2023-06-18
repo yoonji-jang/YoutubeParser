@@ -18,7 +18,7 @@ def RequestVideoInfo(vID, dev_key):
     response = requests.get(VIDEO_SEARCH_URL).json()
     return response
 
-def get_video_data(keyword, vID, input_json, dev_key):
+def get_video_data(keyword, vID, input_json):
     arr = json.dumps(input_json)
     jsonObject = json.loads(arr)
     if ((jsonObject.get('error')) or ('items' not in jsonObject)):
@@ -61,5 +61,5 @@ def get_video_data(keyword, vID, input_json, dev_key):
 def run_VideoAnalysis(keyword, vID, dev_key):
     print("[Info] Running Youtube Video Analysis")
     res_json = RequestVideoInfo(vID, dev_key)
-    df_just_video = get_video_data(keyword, vID, res_json, dev_key)
+    df_just_video = get_video_data(keyword, vID, res_json)
     return df_just_video
