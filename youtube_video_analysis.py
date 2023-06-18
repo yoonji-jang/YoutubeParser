@@ -3,6 +3,7 @@ from tqdm import trange
 import requests
 import json
 from urllib.parse import urlparse, parse_qs
+import time
 
 def make_enum(*sequential, **named):
     enums = dict(zip(sequential, range(len(sequential))), **named)
@@ -111,13 +112,12 @@ def run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thum
             continue
         res_json = RequestVideoInfo(vID, dev_key)
         video_data = get_video_data(keyword, vID, res_json, period_date_start, period_date_end)
-# 2023-05-12T05:01:32Z
-#        if len(date_video_list) > 0:
-#            date_str = date_video_list[0]
-#            date_video = time.strptime(date_str, "%Y. %m. %d")
-#            if period_date_start > date_video:
-#                continue
-#            if period_date_end < date_video:
-#                break
+        # 2023-05-12T05:01:32Z
+        if len(video_data[vIndex.DATE]) > 0:
+            date_video = time.strptime(video_data[vIndex.DATE], '%Y-%m-%dT%H:%M:%SZ')
+            if period_date_start > date_video:
+                continue
+            if period_date_end < date_video:
+                break
         df_data.append(video_data)
     return df_data
