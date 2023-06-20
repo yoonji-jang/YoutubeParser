@@ -44,10 +44,36 @@ def get_id_from_href(href):
     return video_id
 
 
+def RequestChannelInfo(cID, dev_key):
+    CHANNEL_SEARCH_URL = f"https://www.googleapis.com/youtube/v3/channels?id={cID}&key={dev_key}&part=snippet,statistics"
+    response = requests.get(CHANNEL_SEARCH_URL).json()
+    return response
+
+
+
 def RequestVideoInfo(vID, dev_key):
     VIDEO_SEARCH_URL = "https://www.googleapis.com/youtube/v3/videos?id=" + vID + "&key=" + dev_key + "&part=snippet,statistics&fields=items(id,snippet(channelId, publishedAt, title, thumbnails.high),statistics)"
     response = requests.get(VIDEO_SEARCH_URL).json()
     return response
+
+def get_channel_data(input_json, cID):
+    ret = {
+        'Channel' : "",
+        'Subscriber' : 0,
+        'Location' : "",
+        'Channel URL' : "",
+        "Channel Thumbnail" : "",
+    }
+    items = input_json.get("items")
+    if items:
+        channel = items[0]
+        ret['Channel'] = channel["snippet"]["title"]
+        ret['Subscriber'] = channel["statistics"]["subscriberCount"]
+        ret['Location'] = channel["snippet"].get("country", "")
+        ret['Channel URL'] = f"https://www.youtube.com/channel/{cID}"
+        ret['Channel Thumbnail'] = channel["snippet"]["thumbnails"]["default"]["url"]
+    return ret
+
 
 def get_video_data(keyword, vID, href, input_json):
     ret = {
@@ -60,7 +86,7 @@ def get_video_data(keyword, vID, href, input_json):
         'ER(%)' : 0,
         'Date' : "",
         'Thumbnail' : "",
-        'Channel ID' : "",
+        'ChannelID' : "",
     }
     arr = json.dumps(input_json)
     jsonObject = json.loads(arr)
@@ -77,7 +103,6 @@ def get_video_data(keyword, vID, href, input_json):
     snippet = item.get('snippet', {})
     ret['Title'] = snippet.get('title', "")
     ret['Date'] = snippet.get('publishedAt', "")
-    ret['Channel ID'] = snippet.get('channelId', "")
 
     statistics = item.get('statistics', {})
     ret['View'] = statistics.get('viewCount', 0)
@@ -89,6 +114,7 @@ def get_video_data(keyword, vID, href, input_json):
     ret['ER(%)'] = ((nComment + nLike) / nView * 100) if nView != 0 else 0
 
     ret['Thumbnail'] = "https://img.youtube.com/vi/" + vID + "/maxresdefault.jpg"
+    ret['ChannelID'] = snippet.get('channelId', "")
 
     return ret
 
@@ -97,13 +123,14 @@ def run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thum
     print("[Info] Running Youtube Video Analysis")
     df_data = []
     for thumbnail in reversed(thumbnails):
+        #video
         href = thumbnail.attrs["href"]
-        # shorts
         vID = get_id_from_href(href)
         if vID == None:
+            print("[Warning] video id is None for : " + href)
             continue
-        res_json = RequestVideoInfo(vID, dev_key)
-        video_data = get_video_data(keyword, vID, href, res_json)
+        video_json = RequestVideoInfo(vID, dev_key)
+        video_data = get_video_data(keyword, vID, href, video_json)
         # 2023-05-12T05:01:32Z
         if len(video_data['Date']) > 0:
             date_video = time.strptime(video_data['Date'], '%Y-%m-%dT%H:%M:%SZ')
@@ -111,5 +138,14 @@ def run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thum
                 continue
             if period_date_end < date_video:
                 break
-        df_data.append(video_data)
+
+        cID = video_data['ChannelID']
+        if cID == None:
+            print("[Warning] channel id is None for : " + href)
+            continue
+        channel_json = RequestChannelInfo(cID, dev_key)
+        channel_data = get_channel_data(channel_json, cID)
+
+        video_channel_data = {**video_data, **channel_data}
+        df_data.append(video_channel_data)
     return df_data
