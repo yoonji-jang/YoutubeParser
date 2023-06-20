@@ -9,7 +9,6 @@ def make_enum(*sequential, **named):
     enums = dict(zip(sequential, range(len(sequential))), **named)
     return type('Enum', (), enums)
 
-vIndex = make_enum('KEYWORD', 'TITLE', 'URL', 'VIEW', 'LIKE', 'COMMENTS', 'ER', 'DATE', 'THUMBNAIL', 'CHANNEL_ID')
 cIndex = make_enum('TITLE', 'URL', 'SUBSCRIBER', 'LOCATION', 'PROFILE_IMG')
 
 
@@ -51,18 +50,18 @@ def RequestVideoInfo(vID, dev_key):
     return response
 
 def get_video_data(keyword, vID, href, input_json):
-    ret = {}
-    ret[vIndex.KEYWORD] = keyword
-    ret[vIndex.TITLE] = ""
-    ret[vIndex.URL] = "https://www.youtube.com" + href
-    ret[vIndex.VIEW] = 0
-    ret[vIndex.LIKE] = 0
-    ret[vIndex.COMMENTS] = 0
-    ret[vIndex.ER] = 0
-    ret[vIndex.DATE] = ""
-    ret[vIndex.THUMBNAIL] = ""
-    ret[vIndex.CHANNEL_ID] = ""
-
+    ret = {
+        'Keyword' : keyword,
+        'Title' : "",
+        'URL' : "https://www.youtube.com" + href,
+        'View' : 0,
+        'Like' : 0,
+        'Comment' : 0,
+        'ER(%)' : 0,
+        'Date' : "",
+        'Thumbnail' : "",
+        'Channel ID' : "",
+    }
     arr = json.dumps(input_json)
     jsonObject = json.loads(arr)
     if ((jsonObject.get('error')) or ('items' not in jsonObject)):
@@ -76,20 +75,20 @@ def get_video_data(keyword, vID, href, input_json):
     item = jsonObject['items'][0]
 
     snippet = item.get('snippet', {})
-    ret[vIndex.TITLE] = snippet.get('title', "")
-    ret[vIndex.DATE] = snippet.get('publishedAt', "")
-    ret[vIndex.CHANNEL_ID] = snippet.get('channelId', "")
+    ret['Title'] = snippet.get('title', "")
+    ret['Date'] = snippet.get('publishedAt', "")
+    ret['Channel ID'] = snippet.get('channelId', "")
 
     statistics = item.get('statistics', {})
-    ret[vIndex.VIEW] = statistics.get('viewCount', 0)
-    ret[vIndex.LIKE] = statistics.get('likeCount', 0)
-    ret[vIndex.COMMENTS] = statistics.get('commentCount', 0)
-    nComment = float(ret[vIndex.COMMENTS])
-    nLike = float(ret[vIndex.LIKE])
-    nView = float(ret[vIndex.VIEW])
-    ret[vIndex.ER] = (nComment + nLike) / nView if nView != 0 else 0
+    ret['View'] = statistics.get('viewCount', 0)
+    ret['Like'] = statistics.get('likeCount', 0)
+    ret['Comment'] = statistics.get('commentCount', 0)
+    nComment = float(ret['Comment'])
+    nLike = float(ret['Like'])
+    nView = float(ret['View'])
+    ret['ER(%)'] = ((nComment + nLike) / nView * 100) if nView != 0 else 0
 
-    ret[vIndex.THUMBNAIL] = "https://img.youtube.com/vi/" + vID + "/maxresdefault.jpg"
+    ret['Thumbnail'] = "https://img.youtube.com/vi/" + vID + "/maxresdefault.jpg"
 
     return ret
 
@@ -106,8 +105,8 @@ def run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thum
         res_json = RequestVideoInfo(vID, dev_key)
         video_data = get_video_data(keyword, vID, href, res_json)
         # 2023-05-12T05:01:32Z
-        if len(video_data[vIndex.DATE]) > 0:
-            date_video = time.strptime(video_data[vIndex.DATE], '%Y-%m-%dT%H:%M:%SZ')
+        if len(video_data['Date']) > 0:
+            date_video = time.strptime(video_data['Date'], '%Y-%m-%dT%H:%M:%SZ')
             if period_date_start > date_video:
                 continue
             if period_date_end < date_video:
