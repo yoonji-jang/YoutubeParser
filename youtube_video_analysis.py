@@ -15,42 +15,34 @@ cIndex = make_enum('TITLE', 'URL', 'SUBSCRIBER', 'LOCATION', 'PROFILE_IMG')
 
 RETURN_ERR = -1
 
-def get_id_from_url(url):
-    """Returns Video_ID extracting from the given url of Youtube
+def get_id_from_href(href):
+    """Returns Video_ID extracting from the given href of Youtube
 
     Examples of URLs:
       Valid:
-        'http://youtu.be/_lOT2p_FCvA',
-        'www.youtube.com/watch?v=_lOT2p_FCvA&feature=feedu',
-        'http://www.youtube.com/embed/_lOT2p_FCvA',
-        'http://www.youtube.com/v/_lOT2p_FCvA?version=3&amp;hl=en_US',
-        'https://www.youtube.com/watch?v=rTHlyTphWP0&index=6&list=PLjeDyYvG6-40qawYNR4juzvSOg-ezZ2a6',
-        'youtube.com/watch?v=_lOT2p_FCvA',
-        'https://www.youtube.com/channel/UCUbOogiD-4PKDqaJfSOTC0g'
-      Invalid:
-        'youtu.be/watch?v=_lOT2p_FCvA',
+        '/shorts/R98H7jKJIPA'
+        '/watch?v=VWhZHi0ml4M&pp=ygUG7J247YWU'
     """
-    if url.startswith(('youtu', 'www')):
-        url = 'http://' + url
-    elif url.startswith(('insta', 'www')):
-        url = 'http://' + url
+    video_id = None
 
-    query = urlparse(url)
+    # extract string after "/shorts/"
+    shorts_index = href.find("/shorts/")
+    if shorts_index != -1:
+        video_id = href[shorts_index + len("/shorts/"):]
 
-    if 'youtube' in query.hostname:
-        if (query.path == '/watch') or (query.path == '//watch'):
-            return parse_qs(query.query)['v'][0]
-        elif query.path.startswith(('/embed/', '/v/', '/channel/')):
-            return query.path.split('/')[2]
-    elif 'youtu.be' in query.hostname:
-        return query.path[1:]
-    elif 'instagram' in query.hostname:
-        if query.path.startswith('/p/'):
-            return query.path.split('/')[2]
-        else:
-            return query.path.split('/')[1]
-    else:
-        return RETURN_ERR
+    # extract string after "v="
+    if not video_id:
+        v_index = href.find("v=")
+        if v_index != -1:
+            video_id = href[v_index + len("v="):]
+
+    # remove additional parameter (string after &)
+    if video_id:
+        param_index = video_id.find("&")
+        if param_index != -1:
+            video_id = video_id[:param_index]
+
+    return video_id
 
 
 def RequestVideoInfo(vID, dev_key):
@@ -58,11 +50,11 @@ def RequestVideoInfo(vID, dev_key):
     response = requests.get(VIDEO_SEARCH_URL).json()
     return response
 
-def get_video_data(keyword, vID, input_json, period_date_start, period_date_end):
+def get_video_data(keyword, vID, href, input_json):
     ret = {}
     ret[vIndex.KEYWORD] = keyword
     ret[vIndex.TITLE] = ""
-    ret[vIndex.URL] = "https://www.youtube.com/watch?v=" + vID
+    ret[vIndex.URL] = "https://www.youtube.com" + href
     ret[vIndex.VIEW] = 0
     ret[vIndex.LIKE] = 0
     ret[vIndex.COMMENTS] = 0
@@ -106,12 +98,13 @@ def run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thum
     print("[Info] Running Youtube Video Analysis")
     df_data = []
     for thumbnail in reversed(thumbnails):
-        link = "https://www.youtube.com" + thumbnail.attrs["href"]
-        vID = get_id_from_url(link)
+        href = thumbnail.attrs["href"]
+        # shorts
+        vID = get_id_from_href(href)
         if vID == None:
             continue
         res_json = RequestVideoInfo(vID, dev_key)
-        video_data = get_video_data(keyword, vID, res_json, period_date_start, period_date_end)
+        video_data = get_video_data(keyword, vID, href, res_json)
         # 2023-05-12T05:01:32Z
         if len(video_data[vIndex.DATE]) > 0:
             date_video = time.strptime(video_data[vIndex.DATE], '%Y-%m-%dT%H:%M:%SZ')
