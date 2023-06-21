@@ -102,7 +102,11 @@ def get_video_data(keyword, vID, href, input_json):
 
     snippet = item.get('snippet', {})
     ret['Title'] = snippet.get('title', "")
-    ret['Date'] = snippet.get('publishedAt', "")
+    date_str = snippet.get('publishedAt', "")
+    if len(date_str) > 0:
+        # 2023-05-12T05:01:32Z
+        time_tuple = time.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ')
+        ret['Date'] = time.strftime("%Y-%m-%d", time_tuple)
 
     statistics = item.get('statistics', {})
     ret['View'] = statistics.get('viewCount', 0)
@@ -131,9 +135,8 @@ def run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thum
             continue
         video_json = RequestVideoInfo(vID, dev_key)
         video_data = get_video_data(keyword, vID, href, video_json)
-        # 2023-05-12T05:01:32Z
         if len(video_data['Date']) > 0:
-            date_video = time.strptime(video_data['Date'], '%Y-%m-%dT%H:%M:%SZ')
+            date_video = time.strptime(video_data['Date'], '%Y-%m-%d')
             if period_date_start > date_video:
                 continue
             if period_date_end < date_video:
