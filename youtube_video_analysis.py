@@ -115,7 +115,8 @@ def get_video_data(keyword, vID, href, input_json):
     nComment = float(ret['Comment'])
     nLike = float(ret['Like'])
     nView = float(ret['View'])
-    ret['ER(%)'] = ((nComment + nLike) / nView * 100) if nView != 0 else 0
+    nER = ((nComment + nLike) / nView * 100) if nView != 0 else 0
+    ret['ER(%)'] = str(nER) + "%"
 
     ret['Thumbnail'] = "https://img.youtube.com/vi/" + vID + "/maxresdefault.jpg"
     ret['ChannelID'] = snippet.get('channelId', "")
