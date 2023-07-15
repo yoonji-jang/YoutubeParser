@@ -16,7 +16,7 @@ parser.add_argument('-input', type=str, dest="input_txt", action='store', defaul
 args = parser.parse_args()
 
 # version info
-VERSION = 4.0
+VERSION = 4.1
 print("[Info] YoutubeParser V" + str(VERSION))
 
 #input
