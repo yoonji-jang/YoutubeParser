@@ -18,16 +18,23 @@ def run_search(driver, driver_video, keyword, period_date_start):
     scroll_cnt = 0
 
     date_video = period_date_start
+    last_video_href = ""
     while True:
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
 
         if period_date_start > date_video:
-            print("[Info] Meet the date. stop scroll!!! : ")
+            print("[Info] Meet the date. Stop scroll!!! : ")
             break
+
         if scroll_cnt%5 == 0:
             try:
-                last_video_url = "https://www.youtube.com" + soup.select("a#video-title")[-1].attrs["href"]
+                href = soup.select("a#video-title")[-1].attrs["href"]
+                if last_video_href == href:
+                    print("[Info] No more results. Stop scrolling!!!")
+                    break
+                last_video_href = href
+                last_video_url = "https://www.youtube.com" + last_video_href
                 driver_video.get(last_video_url)
                 time.sleep(3)
                 html_video = driver_video.page_source
