@@ -127,6 +127,7 @@ def get_video_data(keyword, vID, href, input_json):
 def run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thumbnails):
     print("[Info] Running Youtube Video Analysis")
     df_data = []
+    vIDs = []
     for thumbnail in reversed(thumbnails):
         #video
         href = thumbnail.attrs["href"]
@@ -134,6 +135,10 @@ def run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thum
         if vID == None:
             print("[Warning] video id is None for : " + href)
             continue
+        if vID in vIDs:
+            print("[Info] Skip duplicated video id: " + vID)
+            continue
+        vIDs.append(vID)
         video_json = RequestVideoInfo(vID, dev_key)
         video_data = get_video_data(keyword, vID, href, video_json)
         if len(video_data['Date']) > 0:
