@@ -124,10 +124,10 @@ def get_video_data(keyword, vID, href, input_json):
     return ret
 
 
+vIDs = []
 def run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thumbnails):
     print("[Info] Running Youtube Video Analysis")
     df_data = []
-    vIDs = []
     for thumbnail in reversed(thumbnails):
         #video
         href = thumbnail.attrs["href"]
