@@ -9,6 +9,7 @@ from youtube_video_analysis import run_VideoAnalysis
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font
+import re
 
 # parse argument
 parser = argparse.ArgumentParser()
@@ -60,6 +61,7 @@ for keyword in input_keywords:
     df_data = run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thumbnails)
     df_output_data += df_data
 make_excel(df_output_data, output_path)
+print("[Info] Done")
 
 driver.quit()
 driver_video.quit()
