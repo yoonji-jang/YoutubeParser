@@ -109,7 +109,7 @@ def get_video_data(keyword, vID, href, input_json):
     }
     if 'shorts' in href:
         ret['Category'] = 'Shorts'
-    else
+    else:
         ret['Category'] = 'Video'
     arr = json.dumps(input_json)
     jsonObject = json.loads(arr)
