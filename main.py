@@ -60,7 +60,11 @@ for keyword in input_keywords:
     # df_data = get_video_data(driver, keyword, period_date_start, period_date_end, thumbnails)
     df_data = run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thumbnails)
     df_output_data += df_data
-make_excel(df_output_data, output_path)
+try:
+    make_excel(df_output_data, output_path)
+except Exception as exception:
+    print("[Err] making excel: " + str(exception))
+
 print("[Info] Done")
 
 driver.quit()
