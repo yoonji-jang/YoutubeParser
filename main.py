@@ -25,7 +25,7 @@ input_text = args.input_txt
 input_file = open(input_text, "r", encoding="UTF8")
 input_data=input_file.readlines()
 input_file.close()
-input_keywords, period_date_start, period_date_end, output_path, dev_key = parse_input_data(input_data)
+input_keywords, period_date_start, period_date_end, output_path, dev_keys = parse_input_data(input_data)
 print("[Info] Done reading input.txt")
 
 
@@ -58,7 +58,7 @@ for keyword in input_keywords:
 
     thumbnails = run_search(driver, driver_video, keyword, period_date_start)
     # df_data = get_video_data(driver, keyword, period_date_start, period_date_end, thumbnails)
-    df_data = run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thumbnails)
+    df_data = run_VideoAnalysis(keyword, dev_keys, period_date_start, period_date_end, thumbnails)
     df_output_data += df_data
 try:
     make_excel(df_output_data, output_path)

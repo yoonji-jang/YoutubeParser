@@ -14,6 +14,6 @@ def parse_input_data(input_data: List[str]) -> Tuple[List[str], time.struct_time
     period_date_start = time.strptime(dict_["PERIOD_DATE_START"], "%Y.%m.%d")
     period_date_end = time.strptime(dict_["PERIOD_DATE_END"], "%Y.%m.%d")
     output_path = dict_["OUTPUT"]
-    dev_key = dict_["DEV_KEY"]
+    dev_keys = list(dict_["DEV_KEY"].split(","))
 
-    return input_keywords, period_date_start, period_date_end, output_path, dev_key
+    return input_keywords, period_date_start, period_date_end, output_path, dev_keys

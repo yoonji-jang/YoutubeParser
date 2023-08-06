@@ -11,7 +11,6 @@ def make_enum(*sequential, **named):
 
 cIndex = make_enum('TITLE', 'URL', 'SUBSCRIBER', 'LOCATION', 'PROFILE_IMG')
 
-
 RETURN_ERR = -1
 
 def get_id_from_href(href):
@@ -43,18 +42,37 @@ def get_id_from_href(href):
 
     return video_id
 
-
-def RequestChannelInfo(cID, dev_key):
-    CHANNEL_SEARCH_URL = f"https://www.googleapis.com/youtube/v3/channels?id={cID}&key={dev_key}&part=snippet,statistics"
-    response = requests.get(CHANNEL_SEARCH_URL).json()
+def RequestYoutubeAPI(request_url_prefix, dev_keys):
+    key_len = len(dev_keys)
+    while True:
+        if RequestYoutubeAPI.key_ind >= key_len:
+            print("[Error] No more developer keys available")
+            return RETURN_ERR
+        dev_key = dev_keys[RequestYoutubeAPI.key_ind]
+        request_url = f"{request_url_prefix}&key={dev_key}"
+        response = requests.get(request_url).json()
+        if "quotaExceeded" in str(response):
+            print("[Info] Quota exceeded : " + dev_key + ". Retry with next key")
+            RequestYoutubeAPI.key_ind += 1
+            continue
+        if "API_KEY_INVALID" in str(response):
+            print("[Info] Invalid key : " + dev_key + ". Retry with next key")
+            RequestYoutubeAPI.key_ind += 1
+            continue
+        break
     return response
+RequestYoutubeAPI.key_ind = 0
+
+def RequestChannelInfo(cID, dev_keys):
+    channel_request_prefix = f"https://www.googleapis.com/youtube/v3/channels?id={cID}&part=snippet,statistics"
+    return RequestYoutubeAPI(channel_request_prefix, dev_keys)
 
 
 
-def RequestVideoInfo(vID, dev_key):
-    VIDEO_SEARCH_URL = "https://www.googleapis.com/youtube/v3/videos?id=" + vID + "&key=" + dev_key + "&part=snippet,statistics&fields=items(id,snippet(channelId, publishedAt, title, thumbnails.high),statistics)"
-    response = requests.get(VIDEO_SEARCH_URL).json()
-    return response
+def RequestVideoInfo(vID, dev_keys):
+    VIDEO_SEARCH_URL = f"https://www.googleapis.com/youtube/v3/videos?id={vID}&part=snippet,statistics"
+    return RequestYoutubeAPI(VIDEO_SEARCH_URL, dev_keys)
+
 
 def get_channel_data(input_json, cID):
     ret = {
@@ -125,9 +143,9 @@ def get_video_data(keyword, vID, href, input_json):
 
 
 vIDs = []
-def run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thumbnails):
-    print("[Info] Running Youtube Video Analysis")
+def run_VideoAnalysis(keyword, dev_keys, period_date_start, period_date_end, thumbnails):
     df_data = []
+    print("[Info] Running Youtube Video Analysis")
     for thumbnail in reversed(thumbnails):
         #video
         href = thumbnail.attrs["href"]
@@ -139,7 +157,13 @@ def run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thum
             print("[Info] Skip duplicated video id: " + vID)
             continue
         vIDs.append(vID)
-        video_json = RequestVideoInfo(vID, dev_key)
+
+        ret = RequestVideoInfo(vID, dev_keys)
+        if ret == RETURN_ERR:
+            print("[Info] Stop crawling due to Quota Exceeded errer for all developer keys")
+            return df_data
+
+        video_json = ret
         video_data = get_video_data(keyword, vID, href, video_json)
         if len(video_data['Date']) > 0:
             date_video = time.strptime(video_data['Date'], '%Y-%m-%d')
@@ -152,7 +176,12 @@ def run_VideoAnalysis(keyword, dev_key, period_date_start, period_date_end, thum
         if cID == None:
             print("[Warning] channel id is None for : " + href)
             continue
-        channel_json = RequestChannelInfo(cID, dev_key)
+        ret = RequestChannelInfo(cID, dev_keys)
+        if ret == RETURN_ERR:
+            print("[Info] Stop crawling due to Quota Exceeded errer for all developer keys")
+            return df_data
+
+        channel_json = ret
         channel_data = get_channel_data(channel_json, cID)
 
         video_channel_data = {**video_data, **channel_data}
