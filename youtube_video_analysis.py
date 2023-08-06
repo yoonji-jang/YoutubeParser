@@ -98,6 +98,7 @@ def get_video_data(keyword, vID, href, input_json):
         'Keyword' : keyword,
         'Title' : "",
         'URL' : "https://www.youtube.com" + href,
+        'Category' : "",
         'View' : 0,
         'Like' : 0,
         'Comment' : 0,
@@ -106,6 +107,10 @@ def get_video_data(keyword, vID, href, input_json):
         'Thumbnail' : "",
         'ChannelID' : "",
     }
+    if 'shorts' in href:
+        ret['Category'] = 'Shorts'
+    else
+        ret['Category'] = 'Video'
     arr = json.dumps(input_json)
     jsonObject = json.loads(arr)
     if ((jsonObject.get('error')) or ('items' not in jsonObject)):
