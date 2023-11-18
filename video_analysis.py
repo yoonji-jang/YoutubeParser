@@ -1,7 +1,7 @@
 import time
 import pandas as pd
 import os
-from input_parser import parse_input_data
+from video_input_parser import parse_input_data
 from driver import *
 from youtube_parser import run_search, get_video_data
 from youtube_video_analysis import run_VideoAnalysis
