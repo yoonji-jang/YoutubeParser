@@ -6,5 +6,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 webdriver_options = wd.ChromeOptions()
 webdriver_options.add_argument("headless")
 webdriver_options.add_argument("lang=ko")
+webdriver_options.add_argument('--log-level=3')
 driver = wd.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver_options)
 driver_video = wd.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver_options)
