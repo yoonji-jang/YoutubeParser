@@ -10,10 +10,6 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font
 import re
 
-# version info
-VERSION = 4.2
-print("[Info] YoutubeParser V" + str(VERSION))
-
 def run_video_analysis(args):
     input_keywords, period_date_start, period_date_end, output_path, dev_keys = read_input(args)
     video_analysis(input_keywords, period_date_start, period_date_end, output_path, dev_keys)
