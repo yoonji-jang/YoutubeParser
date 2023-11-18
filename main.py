@@ -1,5 +1,4 @@
 import argparse
-from input_parser import parse_input_data
 from video_analysis import run_video_analysis
 
 # 1. print version info
