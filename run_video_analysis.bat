@@ -1,1 +1,1 @@
-cmd/k YoutubeParser.exe --yv -input input_video.txt
+cmd/k YoutubeParser.exe --va -input input_video.txt
