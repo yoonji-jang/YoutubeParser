@@ -11,7 +11,8 @@ from openpyxl.styles import Font
 import re
 
 def run_video_analysis(args):
-    input_keywords, period_date_start, period_date_end, output_path, dev_keys = read_input(args)
+    print("[Info] Run Video Analysis")
+    input_keywords, period_date_start, period_date_end, output_path, dev_keys = read_input(args.input_txt)
     video_analysis(input_keywords, period_date_start, period_date_end, output_path, dev_keys)
 
 def video_analysis(input_keywords, period_date_start, period_date_end, output_path, dev_keys):
@@ -34,8 +35,7 @@ def video_analysis(input_keywords, period_date_start, period_date_end, output_pa
     driver_video.quit()
 
 # read input
-def read_input(args):
-    input_text = args.input_txt
+def read_input(input_text):
     input_file = open(input_text, "r", encoding="UTF8")
     input_data=input_file.readlines()
     input_file.close()
