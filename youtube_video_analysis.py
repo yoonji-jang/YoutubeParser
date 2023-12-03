@@ -1,4 +1,5 @@
 # youtube_video_analysis
+from googleapiclient.discovery import build
 from tqdm import trange
 import requests
 import json
@@ -12,6 +13,9 @@ def make_enum(*sequential, **named):
 cIndex = make_enum('TITLE', 'URL', 'SUBSCRIBER', 'LOCATION', 'PROFILE_IMG')
 
 RETURN_ERR = -1
+# youtube api
+YOUTUBE_API_SERVICE_NAME="youtube"
+YOUTUBE_API_VERSION="v3"
 
 def get_id_from_href(href):
     """Returns Video_ID extracting from the given href of Youtube
@@ -73,6 +77,28 @@ def RequestVideoInfo(vID, dev_keys):
     VIDEO_SEARCH_URL = f"https://www.googleapis.com/youtube/v3/videos?id={vID}&part=snippet,statistics"
     return RequestYoutubeAPI(VIDEO_SEARCH_URL, dev_keys)
 
+def RequestChannelContentsInfo(dev_keys, cID, max_result):
+    key_len = len(dev_keys)
+    while True:
+        if RequestChannelContentsInfo.key_ind >= key_len:
+            print("[Error] No more developer keys available")
+            return RETURN_ERR
+        dev_key = dev_keys[RequestChannelContentsInfo.key_ind]
+
+        try:
+            youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=dev_key)
+            response = youtube.search().list(
+                channelId = cID,
+                type = "video",
+                order = "date",
+                part = "id",
+                fields = "items(id)",
+                maxResults = max_result
+            ).execute()
+        except Exception as exception:
+            print("[Warning] " + str(exception))
+            return RETURN_ERR
+        return response
 
 def get_channel_data(input_json, cID):
     ret = {
