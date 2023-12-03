@@ -15,7 +15,7 @@ RETURN_ERR = -1
 
 
 def run_influencer_analysis(args):
-    print("[Info] Run Video Analysis")
+    print("[Info] Run Influencer Analysis")
     input_excel, influencer_sheet, video_sheet, start_row, start_col, end_row, max_result, output_excel, dev_keys = read_input(args.input_txt)
     RUN_YC = args.yc
     RUN_YV = args.yv
@@ -94,7 +94,7 @@ def read_input(input_text):
     input_file = open(input_text, "r", encoding="UTF8")
     input_data=input_file.readlines()
     input_file.close()
-    print("[Info] Done reading input.txt")
+    print("[Info] Done reading : " + input_text)
     return parse_input_data(input_data)
 
 

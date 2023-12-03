@@ -98,7 +98,17 @@ def RequestChannelContentsInfo(dev_keys, cID, max_result):
         except Exception as exception:
             print("[Warning] " + str(exception))
             return RETURN_ERR
-        return response
+        if "quotaExceeded" in str(response):
+            print("[Info] Quota exceeded : " + dev_key + ". Retry with next key")
+            RequestYoutubeAPI.key_ind += 1
+            continue
+        if "API_KEY_INVALID" in str(response):
+            print("[Info] Invalid key : " + dev_key + ". Retry with next key")
+            RequestYoutubeAPI.key_ind += 1
+            continue
+        break
+    return response
+RequestChannelContentsInfo.key_ind = 0
 
 def get_channel_data(input_json, cID):
     ret = {

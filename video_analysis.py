@@ -39,7 +39,7 @@ def read_input(input_text):
     input_file = open(input_text, "r", encoding="UTF8")
     input_data=input_file.readlines()
     input_file.close()
-    print("[Info] Done reading input.txt")
+    print("[Info] Done reading : " + input_text)
     return parse_input_data(input_data)
 
 # make output
