@@ -7,7 +7,6 @@ from openpyxl.drawing.image import Image
 from openpyxl.utils import get_column_letter
 import json
 from tqdm import trange
-from bs4 import BeautifulSoup
 from youtube_video_analysis import RequestChannelInfo, RequestVideoInfo, RequestChannelContentsInfo
 
 # Todo: add error handling, excel cell size
@@ -46,7 +45,7 @@ def run_VideoAnalysis(sheet, start_row, start_col, end_row, dev_keys):
         vURL = sheet.cell(row, start_col).value
         if vURL == None:
             continue
-        vID = get_id_from_url(vURL)
+        vID = get_video_id(vURL)
         if (vID == RETURN_ERR) or (vID == None):
             print("[Warning] " + "fail to get ID from URL : " + vURL)
             continue
@@ -101,44 +100,6 @@ def read_input(input_text):
     return parse_input_data(input_data)
 
 
-# get video id from url
-def get_id_from_url(url):
-    """Returns Video_ID extracting from the given url of Youtube
-
-    Examples of URLs:
-      Valid:
-        'http://youtu.be/_lOT2p_FCvA',
-        'www.youtube.com/watch?v=_lOT2p_FCvA&feature=feedu',
-        'http://www.youtube.com/embed/_lOT2p_FCvA',
-        'http://www.youtube.com/v/_lOT2p_FCvA?version=3&amp;hl=en_US',
-        'https://www.youtube.com/watch?v=rTHlyTphWP0&index=6&list=PLjeDyYvG6-40qawYNR4juzvSOg-ezZ2a6',
-        'youtube.com/watch?v=_lOT2p_FCvA',
-        'https://www.youtube.com/channel/UCUbOogiD-4PKDqaJfSOTC0g'
-      Invalid:
-        'youtu.be/watch?v=_lOT2p_FCvA',
-    """
-    if url.startswith(('youtu', 'www')):
-        url = 'http://' + url
-    elif url.startswith(('insta', 'www')):
-        url = 'http://' + url
-
-    query = urlparse(url)
-
-    if 'youtube' in query.hostname:
-        if (query.path == '/watch') or (query.path == '//watch'):
-            return parse_qs(query.query)['v'][0]
-        elif query.path.startswith(('/embed/', '/v/', '/channel/')):
-            return query.path.split('/')[2]
-    elif 'youtu.be' in query.hostname:
-        return query.path[1:]
-    elif 'instagram' in query.hostname:
-        if query.path.startswith('/p/'):
-            return query.path.split('/')[2]
-        else:
-            return query.path.split('/')[1]
-    else:
-        return RETURN_ERR
-
 def get_channel_id(youtube_url):
     response = requests.get(youtube_url)
     html_content = response.text
@@ -146,6 +107,14 @@ def get_channel_id(youtube_url):
     index = html_content.find(id_pattern)
     channel_id = html_content[index + len(id_pattern):index + len(id_pattern) + 24]
     return channel_id
+
+def get_video_id(youtube_url):
+    response = requests.get(youtube_url)
+    html_content = response.text
+    id_pattern = 'videoId\":\"'
+    index = html_content.find(id_pattern)
+    video_id = html_content[index + len(id_pattern):index + len(id_pattern) + 11]
+    return video_id
 
 def UpdateChannelInfoToExcel(sheet, r, start, data):
     start_c = start - 1
