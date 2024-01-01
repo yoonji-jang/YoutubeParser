@@ -46,26 +46,37 @@ def get_id_from_href(href):
 
     return video_id
 
-def RequestYoutubeAPI(request_url_prefix, dev_keys):
+def GetDevKeyAvailable(dev_keys):
     key_len = len(dev_keys)
+    if GetDevKeyAvailable.key_ind >= key_len:
+        print("[Error] No more developer keys available")
+        return RETURN_ERR
+    return dev_keys[GetDevKeyAvailable.key_ind]
+GetDevKeyAvailable.key_ind = 0
+
+def UseNextDevKey():
+    GetDevKeyAvailable.key_ind += 1
+    print("[Info] Use Next dev key. key_ind = " + str(GetDevKeyAvailable.key_ind))
+
+
+def RequestYoutubeAPI(request_url_prefix, dev_keys):
     while True:
-        if RequestYoutubeAPI.key_ind >= key_len:
+        dev_key = GetDevKeyAvailable(dev_keys)
+        if dev_key == RETURN_ERR:
             print("[Error] No more developer keys available")
             return RETURN_ERR
-        dev_key = dev_keys[RequestYoutubeAPI.key_ind]
         request_url = f"{request_url_prefix}&key={dev_key}"
         response = requests.get(request_url).json()
         if "quotaExceeded" in str(response):
             print("[Info] Quota exceeded : " + dev_key + ". Retry with next key")
-            RequestYoutubeAPI.key_ind += 1
+            UseNextDevKey()
             continue
         if "API_KEY_INVALID" in str(response):
             print("[Info] Invalid key : " + dev_key + ". Retry with next key")
-            RequestYoutubeAPI.key_ind += 1
+            UseNextDevKey()
             continue
         break
     return response
-RequestYoutubeAPI.key_ind = 0
 
 def RequestChannelInfo(cID, dev_keys):
     channel_request_prefix = f"https://www.googleapis.com/youtube/v3/channels?id={cID}&part=snippet,statistics"
@@ -78,13 +89,11 @@ def RequestVideoInfo(vID, dev_keys):
     return RequestYoutubeAPI(VIDEO_SEARCH_URL, dev_keys)
 
 def RequestChannelContentsInfo(dev_keys, cID, max_result):
-    key_len = len(dev_keys)
     while True:
-        if RequestChannelContentsInfo.key_ind >= key_len:
+        dev_key = GetDevKeyAvailable(dev_keys)
+        if dev_key == RETURN_ERR:
             print("[Error] No more developer keys available")
             return RETURN_ERR
-        dev_key = dev_keys[RequestChannelContentsInfo.key_ind]
-
         try:
             youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=dev_key)
             response = youtube.search().list(
@@ -101,15 +110,14 @@ def RequestChannelContentsInfo(dev_keys, cID, max_result):
             return RETURN_ERR
         if "quotaExceeded" in str(response):
             print("[Info] Quota exceeded : " + dev_key + ". Retry with next key")
-            RequestYoutubeAPI.key_ind += 1
+            UseNextDevKey()
             continue
         if "API_KEY_INVALID" in str(response):
             print("[Info] Invalid key : " + dev_key + ". Retry with next key")
-            RequestYoutubeAPI.key_ind += 1
+            UseNextDevKey()
             continue
         break
     return response
-RequestChannelContentsInfo.key_ind = 0
 
 def get_channel_data(input_json, cID):
     ret = {
