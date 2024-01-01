@@ -3,7 +3,7 @@ from video_analysis import run_video_analysis
 from influencer_analysis import run_influencer_analysis
 
 # 1. print version info
-VERSION = 4.2
+VERSION = 5.0
 print("[Info] YoutubeParser V" + str(VERSION))
 
 # 2. parse argument
