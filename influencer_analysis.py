@@ -7,7 +7,7 @@ from openpyxl.drawing.image import Image
 from openpyxl.utils import get_column_letter
 import json
 from tqdm import trange
-
+from bs4 import BeautifulSoup
 from youtube_video_analysis import RequestChannelInfo, RequestVideoInfo, RequestChannelContentsInfo
 
 # Todo: add error handling, excel cell size
@@ -65,7 +65,7 @@ def run_InfluencerAnalysis(sheet, start_row, start_col, end_row, dev_keys, max_r
         if cURL == None:
             print("[Warning] URL = None. row=" + str(row))
             continue
-        cID = get_id_from_url(cURL)
+        cID = get_channel_id(cURL)
         if (cID == RETURN_ERR) or (cID == None):
             print("[Warning] " + "fail to get ID from URL : " + cURL)
             continue
@@ -139,6 +139,13 @@ def get_id_from_url(url):
     else:
         return RETURN_ERR
 
+def get_channel_id(youtube_url):
+    response = requests.get(youtube_url)
+    html_content = response.text
+    id_pattern = 'channelId\":\"'
+    index = html_content.find(id_pattern)
+    channel_id = html_content[index + len(id_pattern):index + len(id_pattern) + 24]
+    return channel_id
 
 def UpdateChannelInfoToExcel(sheet, r, start, data):
     start_c = start - 1
