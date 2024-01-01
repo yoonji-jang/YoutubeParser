@@ -225,6 +225,7 @@ def GetChannelData(cID, channel_info, channel_contents_info, dev_keys):
             if comments > 0:
                 nCommentCnt += comments
                 nComment += 1
+            break
 
     if nView > 0:
         ret[cIndex.POST_VIEW] = nViewCnt / nView
