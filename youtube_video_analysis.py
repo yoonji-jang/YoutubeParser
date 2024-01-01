@@ -130,8 +130,8 @@ def get_channel_data(input_json, cID):
     items = input_json.get("items")
     if items:
         channel = items[0]
-        ret['Channel'] = channel["snippet"]["title"]
-        ret['Subscriber'] = channel["statistics"]["subscriberCount"]
+        ret['Channel'] = channel["snippet"].get("title")
+        ret['Subscriber'] = channel["statistics"].get("subscriberCount")
         ret['Location'] = channel["snippet"].get("country", "")
         ret['Channel URL'] = f"https://www.youtube.com/channel/{cID}"
         ret['Channel Thumbnail'] = channel["snippet"]["thumbnails"]["default"]["url"]
