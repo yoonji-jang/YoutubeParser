@@ -96,7 +96,8 @@ def RequestChannelContentsInfo(dev_keys, cID, max_result):
                 maxResults = max_result
             ).execute()
         except Exception as exception:
-            print("[Warning] " + str(exception))
+            print("[Warning]" + str(exception))
+            print("dev_key=" + dev_key + ", cID=" + cID)
             return RETURN_ERR
         if "quotaExceeded" in str(response):
             print("[Info] Quota exceeded : " + dev_key + ". Retry with next key")

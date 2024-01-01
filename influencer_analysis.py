@@ -63,6 +63,7 @@ def run_InfluencerAnalysis(sheet, start_row, start_col, end_row, dev_keys, max_r
     for row in trange(start_row, max_row + 1):
         cURL = sheet.cell(row, start_col).value
         if cURL == None:
+            print("[Warning] URL = None. row=" + str(row))
             continue
         cID = get_id_from_url(cURL)
         if (cID == RETURN_ERR) or (cID == None):
@@ -72,9 +73,11 @@ def run_InfluencerAnalysis(sheet, start_row, start_col, end_row, dev_keys, max_r
         channel_info = RequestChannelInfo(cID, dev_keys)
         channel_contents_info = RequestChannelContentsInfo(dev_keys, cID, max_result)
         if channel_contents_info == RETURN_ERR:
+            print("[Warning] channel_contents_info = RETURN_ERR")
             continue
         df_just_channel = GetChannelData(cID, channel_info, channel_contents_info, dev_keys)
         if df_just_channel == RETURN_ERR:
+            print("[Warning] df_just_channel = RETURN_ERR")
             continue
         UpdateChannelInfoToExcel(sheet, row, start_col + 1, df_just_channel)
 
