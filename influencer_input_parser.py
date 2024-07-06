@@ -2,7 +2,11 @@ import time
 
 from typing import List, Tuple
 
-def parse_input_data(input_data: List[str]) -> Tuple[str, int, int, int, int, int, int, str, List[str]]:
+def parse_input_data(input_text) -> Tuple[str, int, int, int, int, int, int, str, List[str]]:
+    input_file = open(input_text, "r", encoding="UTF8")
+    input_data=input_file.readlines()
+    input_file.close()
+    print("[Info] Done reading : " + input_text)
     dict_ = {}
     for line in input_data:
         key_value = line.strip().split("=")

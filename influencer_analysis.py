@@ -15,7 +15,7 @@ RETURN_ERR = -1
 
 def run_influencer_analysis(args):
     print("[Info] Run Influencer Analysis")
-    input_excel, influencer_sheet, video_sheet, start_row, start_col, end_row, max_result, output_excel, dev_keys = read_input(args.input_txt)
+    input_excel, influencer_sheet, video_sheet, start_row, start_col, end_row, max_result, output_excel, dev_keys = parse_input_data(args.input_txt)
     RUN_YC = args.yc
     RUN_YV = args.yv
     
@@ -89,15 +89,6 @@ def make_enum(*sequential, **named):
 
 vIndex = make_enum('V_URL', 'V_TITLE', 'VIEW', 'LIKE', 'COMMENTS', 'C_TITLE', 'C_URL', 'CHANNEL_SUBSCRIBER', 'THUMBNAIL')
 cIndex = make_enum('URL', 'PROFILE_IMG', 'TITLE', 'SUBSCRIBER', 'POST_VIEW', 'POST_LIKE', 'POST_COMMENT', 'POST_ENGAGE', 'AGE', 'GENDER', 'LOCATION', 'LANGUAGE')
-
-
-# read input
-def read_input(input_text):
-    input_file = open(input_text, "r", encoding="UTF8")
-    input_data=input_file.readlines()
-    input_file.close()
-    print("[Info] Done reading : " + input_text)
-    return parse_input_data(input_data)
 
 
 def get_channel_id(youtube_url):

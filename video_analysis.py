@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 def run_video_analysis(args):
     print("[Info] Run Video Analysis")
-    input_keywords, period_date_start, period_date_end, output_path, dev_keys = read_input(args.input_txt)
+    input_keywords, period_date_start, period_date_end, output_path, dev_keys = parse_input_data(args.input_txt)
     video_analysis(input_keywords, period_date_start, period_date_end, output_path, dev_keys)
 
 def video_analysis(input_keywords, period_date_start, period_date_end, output_path, dev_keys):
@@ -29,11 +29,3 @@ def video_analysis(input_keywords, period_date_start, period_date_end, output_pa
     print("[Info] Done")
     driver.quit()
     driver_video.quit()
-
-# read input
-def read_input(input_text):
-    input_file = open(input_text, "r", encoding="UTF8")
-    input_data=input_file.readlines()
-    input_file.close()
-    print("[Info] Done reading : " + input_text)
-    return parse_input_data(input_data)
