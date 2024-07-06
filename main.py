@@ -1,7 +1,7 @@
 import argparse
 from video_analysis import run_video_analysis
 from influencer_analysis import run_influencer_analysis
-from bulk_analysis import run_channel_bulk
+from bulk_analysis import run_channel_bulk_analysis
 
 # 1. print version info
 VERSION = 6.0
@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser()
 # common
 parser.add_argument('--va', action='store_true', help='video analysis')
 parser.add_argument('--ia', action='store_true', help='influencer analysis')
-parser.add_argument('--yb', action='store_true', help='youtube bulk')
+parser.add_argument('--yb', action='store_true', help='youtube bulk analysis')
 parser.add_argument('-input', type=str, dest="input_txt", action='store', default="input_video.txt", help='input text file')
 # influencer analysis
 parser.add_argument('--yc', action='store_true', help='youtube channel')
@@ -28,7 +28,6 @@ if (args.va == True):
 elif (args.ia == True):
     run_influencer_analysis(args)
 elif (args.yb == True):
-    run_channel_bulk(args)
+    run_channel_bulk_analysis(args)
 else:
-    run_channel_bulk(args)
     print("[Warning] Stop running due to invalid argument")

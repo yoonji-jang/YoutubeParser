@@ -6,7 +6,7 @@ from youtube_video_analysis import run_BulkAnalysis
 from excel_func import make_excel
 from tqdm import tqdm
 
-def run_channel_bulk(args):
+def run_channel_bulk_analysis(args):
     print("[Info] Run Bulk Analysis")
     period_date_start, period_date_end, output_path, dev_keys, channel_list = read_input(args.input_txt)
     bulk_analysis(period_date_start, period_date_end, output_path, dev_keys, channel_list)
