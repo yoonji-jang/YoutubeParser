@@ -5,6 +5,7 @@ import requests
 import json
 from urllib.parse import urlparse, parse_qs
 import time
+from tqdm import tqdm
 
 def make_enum(*sequential, **named):
     enums = dict(zip(sequential, range(len(sequential))), **named)
@@ -191,12 +192,65 @@ def get_video_data(keyword, vID, href, input_json):
 
     return ret
 
+def get_video_data_simple(vID, href, input_json):
+    ret = {
+        'Title' : "",
+        'URL' : "https://www.youtube.com" + href,
+        'Category' : "",
+        'View' : 0,
+        'Like' : 0,
+        'Comment' : 0,
+        'ER(%)' : 0,
+        'Date' : "",
+        'ChannelID' : "",
+        'Channel' : "",
+    }
+    if 'shorts' in href:
+        ret['Category'] = 'Shorts'
+    else:
+        ret['Category'] = 'Video'
+    arr = json.dumps(input_json)
+    jsonObject = json.loads(arr)
+    if ((jsonObject.get('error')) or ('items' not in jsonObject)):
+        print("[Warning] response error! : " + vID)
+        print(jsonObject['error'])
+        return ret
+    items = jsonObject['items']
+    if len(items) <= 0:
+        print("[Warning] no items for Video Data: " + vID)
+        return ret
+    item = jsonObject['items'][0]
+
+    snippet = item.get('snippet', {})
+    ret['Title'] = snippet.get('title', "")
+    ret['Channel'] = snippet.get('channelTitle', "")
+    date_str = snippet.get('publishedAt', "")
+    if len(date_str) > 0:
+        # 2023-05-12T05:01:32Z
+        time_tuple = time.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ')
+        ret['Date'] = time.strftime("%Y-%m-%d", time_tuple)
+
+    statistics = item.get('statistics', {})
+    ret['View'] = statistics.get('viewCount', 0)
+    ret['Like'] = statistics.get('likeCount', 0)
+    ret['Comment'] = statistics.get('commentCount', 0)
+    nComment = float(ret['Comment'])
+    nLike = float(ret['Like'])
+    nView = float(ret['View'])
+    nER = ((nComment + nLike) / nView * 100) if nView != 0 else 0
+    ret['ER(%)'] = str(nER) + "%"
+
+    ret['ChannelID'] = snippet.get('channelId', "")
+
+    return ret
+
 
 vIDs = []
 def run_VideoAnalysis(keyword, dev_keys, period_date_start, period_date_end, thumbnails):
     df_data = []
     print("[Info] Running Youtube Video Analysis")
-    for thumbnail in reversed(thumbnails):
+    print("[Info] list size = " +  str(len(thumbnails)))
+    for thumbnail in tqdm(reversed(thumbnails)):
         #video
         href = thumbnail.attrs["href"]
         vID = get_id_from_href(href)
@@ -236,4 +290,37 @@ def run_VideoAnalysis(keyword, dev_keys, period_date_start, period_date_end, thu
 
         video_channel_data = {**video_data, **channel_data}
         df_data.append(video_channel_data)
+    return df_data
+
+def run_BulkAnalysis(dev_keys, period_date_start, period_date_end, thumbnails):
+    df_data = []
+    print("[Info] Running Youtube Channel Videos Bulk Analysis")
+    print("[Info] list size = " +  str(len(thumbnails)))
+    for thumbnail in tqdm(reversed(thumbnails)):
+        #video
+        href = thumbnail.attrs["href"]
+        vID = get_id_from_href(href)
+        if vID == None:
+            print("[Warning] video id is None for : " + href)
+            continue
+        if vID in vIDs:
+            print("[Info] Skip duplicated video id: " + vID)
+            continue
+        vIDs.append(vID)
+
+        ret = RequestVideoInfo(vID, dev_keys)
+        if ret == RETURN_ERR:
+            print("[Info] Stop crawling due to Quota Exceeded errer for all developer keys")
+            return df_data
+
+        video_json = ret
+        video_data = get_video_data_simple(vID, href, video_json)
+        if len(video_data['Date']) > 0:
+            date_video = time.strptime(video_data['Date'], '%Y-%m-%d')
+            if period_date_start > date_video:
+                continue
+            if period_date_end < date_video:
+                break
+
+        df_data.append(video_data)
     return df_data

@@ -4,6 +4,7 @@ from driver import *
 from youtube_parser import run_search, get_video_data
 from youtube_video_analysis import run_VideoAnalysis
 from excel_func import make_excel
+from tqdm import tqdm
 
 def run_video_analysis(args):
     print("[Info] Run Video Analysis")
@@ -12,7 +13,7 @@ def run_video_analysis(args):
 
 def video_analysis(input_keywords, period_date_start, period_date_end, output_path, dev_keys):
     df_output_data = []
-    for keyword in input_keywords:
+    for keyword in tqdm(input_keywords):
         print("[Info] search for " + keyword)
         print("[Info] search for " + time.strftime('%Y-%m-%d', period_date_start) + " ~ " + time.strftime('%Y-%m-%d', period_date_end))
 
