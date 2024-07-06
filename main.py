@@ -4,7 +4,7 @@ from influencer_analysis import run_influencer_analysis
 from bulk_analysis import run_channel_bulk
 
 # 1. print version info
-VERSION = 5.0
+VERSION = 6.0
 print("[Info] YoutubeParser V" + str(VERSION))
 
 # 2. parse argument
