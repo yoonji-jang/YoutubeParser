@@ -1,2 +1,2 @@
-cmd/k YoutubeParser.exe --vb -input input_bulk.txt
+cmd/k YoutubeParser.exe --yb -input input_bulk.txt
 pause
