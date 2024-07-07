@@ -80,6 +80,7 @@ def search_quasarzone(platform, driver, keyword, period_date_start):
 
 def search_coolenjoy(platform, driver, keyword, period_date_start):
     print("[Info] Run search_coolenjoy")
+    current_year = time.localtime().tm_year
     post_list = []
     date_post = period_date_start
     page_num = 1
@@ -108,7 +109,11 @@ def search_coolenjoy(platform, driver, keyword, period_date_start):
 
                 text_contents = [item.strip() for item in sr_elem.contents if isinstance(item, str)]
                 date_str = text_contents[2]
-                date_post = time.strptime(date_str, "%y.%m.%d")
+                if len(date_str.split('.')) == 2:
+                    date_str = f"{current_year}.{date_str}"
+                    date_post = time.strptime(date_str, "%Y.%m.%d")
+                else:
+                    date_post = time.strptime(date_str, "%y.%m.%d")
                 date_str = time.strftime("%Y.%m.%d", date_post)
 
                 title_elem = post.find('div', class_="na-item")
