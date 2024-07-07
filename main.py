@@ -34,5 +34,4 @@ elif (args.yb == True):
 elif (args.tc == True):
     run_tech_community_analysis(args)
 else:
-    run_tech_community_analysis(args)
     print("[Warning] Stop running due to invalid argument")

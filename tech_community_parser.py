@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
 import time
 import re
-from tqdm import tqdm
 from urllib.parse import urljoin
 
 SCROLL_PAUSE_SEC = 1

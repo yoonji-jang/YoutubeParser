@@ -1,10 +1,5 @@
 # youtube_video_analysis
-from googleapiclient.discovery import build
 from bs4 import BeautifulSoup
-from tqdm import trange
-import requests
-import json
-from urllib.parse import urlparse, parse_qs
 import time
 from tqdm import tqdm
 import pandas as pd
@@ -16,17 +11,16 @@ def get_post_data(driver, keyword, url_data):
         'Keyword' : keyword,
         'Date' : url_data['date'],
         'Title' : url_data['title'],
-        'Comment' : [],
+        'Comment' : "",
         'URL' : url_data['url'],
         'Reply' : "",
         'View' : "",
         'Like' : ""
     }
-    ret.append(row)
 
     driver.get(url_data['url'])
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(1)
+    time.sleep(2)
 
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
@@ -38,6 +32,7 @@ def get_post_data(driver, keyword, url_data):
     
     comment_elem = soup.find('div', class_="reply-list")
     if (comment_elem == None):
+        ret.append(row)
         return ret
 
     comments = comment_elem.find_all('div', class_='note-editor content-view-ok')
@@ -58,6 +53,6 @@ def run_TechCommunityAnalysis(driver, keyword, list_url_data):
     print("[Info] list size = " +  str(len(list_url_data)))
     for url_data in tqdm(reversed(list_url_data)):
         post_data = get_post_data(driver, keyword, url_data)
-        df_data = pd.concat([pd.DataFrame([data]) for data in post_data], ignore_index=True)
+        df_data = pd.concat([df_data, pd.DataFrame(post_data)], ignore_index=True)
     ret = df_data.to_dict(orient='records')
     return ret
