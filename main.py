@@ -5,7 +5,7 @@ from bulk_analysis import run_channel_bulk_analysis
 from tech_community_analysis import run_tech_community_analysis
 
 # 1. print version info
-VERSION = 6.0
+VERSION = 7.0
 print("[Info] YoutubeParser V" + str(VERSION))
 
 # 2. parse argument
