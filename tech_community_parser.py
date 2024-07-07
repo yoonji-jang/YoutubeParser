@@ -12,7 +12,7 @@ platform_list = [
 
 def get_platform(platform_name):
     for platform in platform_list:
-        if platform['name'] == platform_name:
+        if platform['name'] in platform_name:
             return platform
     return None
 
@@ -25,9 +25,9 @@ def run_search(driver, keyword, period_date_start, platform_name):
         print("[Warning] Platform not support : " + platform_name)
         return post_list
 
-    if platform_name == "quasarzone":
+    if "quasarzone" in platform_name:
         return search_quasarzone(platform, driver, keyword, period_date_start)
-    elif platform_name == "coolenjoy":
+    elif "coolenjoy" in platform_name:
         return search_coolenjoy(platform, driver, keyword, period_date_start)
 
 

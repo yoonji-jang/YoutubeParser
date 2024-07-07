@@ -7,9 +7,9 @@ import pandas as pd
 
 
 def get_post_data(driver, keyword, url_data, platform):
-    if platform == "quasarzone":
+    if "quasarzone" in platform:
         return get_post_data_quasarzone(driver, keyword, url_data)
-    elif platform == "coolenjoy":
+    elif "coolenjoy" in platform:
         return get_post_data_coolenjoy(driver, keyword, url_data)
 
 
