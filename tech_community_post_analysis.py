@@ -36,10 +36,14 @@ def get_post_data_quasarzone(driver, keyword, url_data):
         'View' : "",
         'Like' : ""
     }
-
-    driver.get(url_data['url'])
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(2)
+    try:
+        driver.get(url_data['url'])
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)
+    except Exception as exception:
+        print("[Warning] " + str(exception))
+        ret.append(row)
+        return ret
 
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
@@ -77,10 +81,15 @@ def get_post_data_coolenjoy(driver, keyword, url_data):
         'View' : "",
         'Like' : ""
     }
+    try:
+        driver.get(url_data['url'])
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)
+    except Exception as exception:
+        print("[Warning] " + str(exception))
+        ret.append(row)
+        return ret
 
-    driver.get(url_data['url'])
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(2)
 
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
