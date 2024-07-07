@@ -25,6 +25,14 @@ def run_search(driver, keyword, period_date_start, platform_name):
         print("[Warning] Platform not support : " + platform_name)
         return post_list
 
+    if platform_name == "quasarzone":
+        return search_quasarzone(platform, driver, keyword, period_date_start)
+
+
+
+def search_quasarzone(platform, driver, keyword, period_date_start):
+    print("[Info] Run search_quasarzone")
+    post_list = []
     date_post = period_date_start
     page_num = 1
     while True:
