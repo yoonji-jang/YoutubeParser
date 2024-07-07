@@ -109,6 +109,7 @@ def search_coolenjoy(platform, driver, keyword, period_date_start):
                 text_contents = [item.strip() for item in sr_elem.contents if isinstance(item, str)]
                 date_str = text_contents[2]
                 date_post = time.strptime(date_str, "%y.%m.%d")
+                date_str = time.strftime("%Y.%m.%d", date_post)
 
                 title_elem = post.find('div', class_="na-item")
                 if title_elem == None:

@@ -20,7 +20,7 @@ def tech_community_analysis(input_keywords, community_list, period_date_start, p
             print("[Info] keyword : " + keyword)
 
             url_data_list = run_search(driver, keyword, period_date_start, community)
-            df_data = run_TechCommunityAnalysis(driver, keyword, url_data_list)
+            df_data = run_TechCommunityAnalysis(driver, keyword, url_data_list, community)
             df_output_data += df_data
     try:
         make_excel(df_output_data, output_path)
