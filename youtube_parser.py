@@ -59,7 +59,8 @@ def run_search(driver, driver_video, keyword, period_date_start):
 
 def get_video_data(driver, keyword, period_date_start, period_date_end, thumbnails):
     df_data = []
-    for thumbnail in tqdm(reversed(thumbnails)):
+    thumbnails.reverse()
+    for thumbnail in tqdm(thumbnails):
         link = "https://www.youtube.com" + thumbnail.attrs["href"]
         title = thumbnail.attrs["title"]
         date_str = ""

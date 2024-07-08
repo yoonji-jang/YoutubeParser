@@ -17,7 +17,8 @@ def run_TechCommunityAnalysis(driver, keyword, list_url_data, platform):
     df_data = pd.DataFrame()
     print("[Info] Running Tech Community Analysis")
     print("[Info] list size = " +  str(len(list_url_data)))
-    for url_data in tqdm(reversed(list_url_data)):
+    list_url_data.reverse()
+    for url_data in tqdm(list_url_data):
         post_data = get_post_data(driver, keyword, url_data, platform)
         df_data = pd.concat([df_data, pd.DataFrame(post_data)], ignore_index=True)
     ret = df_data.to_dict(orient='records')
