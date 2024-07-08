@@ -114,6 +114,9 @@ def search_coolenjoy(platform, driver, keyword, period_date_start):
                 if len(date_str.split('.')) == 2:
                     date_str = f"{current_year}.{date_str}"
                     date_post = time.strptime(date_str, "%Y.%m.%d")
+                elif len(date_str.split(':')) == 2:
+                    print("[Info] date_str : " + date_str)
+                    continue
                 else:
                     date_post = time.strptime(date_str, "%y.%m.%d")
                 date_str = time.strftime("%Y.%m.%d", date_post)
