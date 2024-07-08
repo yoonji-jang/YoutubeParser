@@ -6,8 +6,8 @@ from urllib.parse import urljoin
 SCROLL_PAUSE_SEC = 1
 # define environment
 platform_list = [
-    {"name": "quasarzone", "url": "https://quasarzone.com/groupSearches?kind=subject%7C%7Ccontent&keyword=", "page": "&page="},
-    {"name": "coolenjoy", "url": "https://coolenjoy.net/bbs/search4.php?ot=&onetable=&sfl=wr_subject%7C%7Cwr_content&sop=and&stx=", "page": "&page="}
+    {"name": "quasarzone", "url_subject": "https://quasarzone.com/groupSearches?kind=subject&keyword=", "url_subject_content": "https://quasarzone.com/groupSearches?kind=subject%7C%7Ccontent&keyword=", "page": "&page="},
+    {"name": "coolenjoy", "url_subject": "https://coolenjoy.net/bbs/search4.php?ot=&onetable=&sfl=wr_subject&sop=and&stx=", "url_subject_content": "https://coolenjoy.net/bbs/search4.php?ot=&onetable=&sfl=wr_subject%7C%7Cwr_content&sop=and&stx=", "page": "&page="}
 ]
 
 def get_platform(platform_name):
@@ -39,7 +39,7 @@ def search_quasarzone(platform, driver, keyword, period_date_start):
     page_num = 1
     date_str = str()
     while True:
-        url = platform["url"] + keyword.replace(" ", "+") + platform["page"] + str(page_num)
+        url = platform["url_subject"] + keyword.replace(" ", "+") + platform["page"] + str(page_num)
         print("[Info] date : " + date_str + ", search : " + url)
         driver.get(url)
         html = driver.page_source
@@ -87,7 +87,7 @@ def search_coolenjoy(platform, driver, keyword, period_date_start):
     page_num = 1
     date_str = str()
     while True:
-        url = platform["url"] + keyword.replace(" ", "+") + platform["page"] + str(page_num)
+        url = platform["url_subject"] + keyword.replace(" ", "+") + platform["page"] + str(page_num)
         print("[Info] date : " + date_str + ", search : " + url)
         driver.get(url)
         html = driver.page_source
