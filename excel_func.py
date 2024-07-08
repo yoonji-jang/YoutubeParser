@@ -25,3 +25,4 @@ def make_excel(df_datas, output_path):
                 cell.font = Font(underline="single", color="0563C1")
                 cell.hyperlink = cell.value
     wb.save(output_path)
+    print("[Info] Saved Output Excel : " + output_path)
