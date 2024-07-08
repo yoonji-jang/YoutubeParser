@@ -40,12 +40,13 @@ def get_post_data_quasarzone(driver, keyword, url_data):
         driver.get(url_data['url'])
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(2)
+        html = driver.page_source
     except Exception as exception:
         print("[Warning] " + str(exception))
+        print("[Warning] url: " + url_data['url'])
         ret.append(row)
         return ret
 
-    html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
     row['Reply'] = soup.find('em', class_="reply").text if soup.find('em', class_="reply") else ""
     row['View'] = soup.find('em', class_="view").text if soup.find('em', class_="view") else ""
@@ -85,13 +86,13 @@ def get_post_data_coolenjoy(driver, keyword, url_data):
         driver.get(url_data['url'])
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(2)
+        html = driver.page_source
     except Exception as exception:
         print("[Warning] " + str(exception))
+        print("[Warning] url: " + url_data['url'])
         ret.append(row)
         return ret
 
-
-    html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
 
 
