@@ -41,7 +41,7 @@ def run_influencer_analysis(args):
 def run_VideoAnalysis(sheet, start_row, start_col, end_row, dev_keys):
     print("[Info] Running Youtube Video Analysis")
     max_row = min(sheet.max_row + 1, end_row)
-    for row in tqdm(start_row, max_row+ 1):
+    for row in tqdm(range(start_row, max_row+ 1)):
         vURL = sheet.cell(row, start_col).value
         if vURL == None:
             continue
@@ -59,7 +59,7 @@ def run_VideoAnalysis(sheet, start_row, start_col, end_row, dev_keys):
 def run_InfluencerAnalysis(sheet, start_row, start_col, end_row, dev_keys, max_result):
     print("[Info] Running Youtube Influencer Analysis")
     max_row = min(sheet.max_row + 1, end_row)
-    for row in tqdm(start_row, max_row + 1):
+    for row in tqdm(range(start_row, max_row + 1)):
         cURL = sheet.cell(row, start_col).value
         if cURL == None:
             print("[Warning] URL = None. row=" + str(row))
