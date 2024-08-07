@@ -1,5 +1,4 @@
 from influencer_input_parser import parse_input_data
-from urllib.parse import urlparse, parse_qs
 import requests
 import io
 import openpyxl
@@ -8,6 +7,8 @@ from openpyxl.utils import get_column_letter
 import json
 from tqdm import tqdm
 from youtube_video_analysis import RequestChannelInfo, RequestVideoInfo, RequestChannelContentsInfo
+from bs4 import BeautifulSoup
+import re
 
 # Todo: add error handling, excel cell size
 RETURN_ERR = -1
@@ -91,13 +92,27 @@ vIndex = make_enum('V_URL', 'V_TITLE', 'VIEW', 'LIKE', 'COMMENTS', 'C_TITLE', 'C
 cIndex = make_enum('URL', 'PROFILE_IMG', 'TITLE', 'SUBSCRIBER', 'POST_VIEW', 'POST_LIKE', 'POST_COMMENT', 'POST_ENGAGE', 'AGE', 'GENDER', 'LOCATION', 'LANGUAGE')
 
 
-def get_channel_id(youtube_url):
-    response = requests.get(youtube_url)
-    html_content = response.text
-    id_pattern = 'channelId\":\"'
-    index = html_content.find(id_pattern)
-    channel_id = html_content[index + len(id_pattern):index + len(id_pattern) + 24]
-    return channel_id
+# def get_channel_id(youtube_url):
+#     response = requests.get(youtube_url)
+#     html_content = response.text
+#     id_pattern = 'channelId\":\"'
+#     index = html_content.find(id_pattern)
+#     channel_id = html_content[index + len(id_pattern):index + len(id_pattern) + 24]
+#     return channel_id
+
+def get_channel_id(channel_url):
+    response = requests.get(channel_url)
+    if response.status_code != 200:
+        return None
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # Extract channel ID from meta tags
+    channel_id_meta = soup.find('meta', itemprop='identifier')
+    if channel_id_meta:
+        return channel_id_meta['content']
+
+    return None
 
 def get_video_id(youtube_url):
     response = requests.get(youtube_url)
