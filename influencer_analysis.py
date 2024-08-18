@@ -92,14 +92,6 @@ vIndex = make_enum('V_URL', 'V_TITLE', 'VIEW', 'LIKE', 'COMMENTS', 'C_TITLE', 'C
 cIndex = make_enum('URL', 'PROFILE_IMG', 'TITLE', 'SUBSCRIBER', 'POST_VIEW', 'POST_LIKE', 'POST_COMMENT', 'POST_ENGAGE', 'AGE', 'GENDER', 'LOCATION', 'LANGUAGE')
 
 
-# def get_channel_id(youtube_url):
-#     response = requests.get(youtube_url)
-#     html_content = response.text
-#     id_pattern = 'channelId\":\"'
-#     index = html_content.find(id_pattern)
-#     channel_id = html_content[index + len(id_pattern):index + len(id_pattern) + 24]
-#     return channel_id
-
 def get_channel_id(channel_url):
     response = requests.get(channel_url)
     if response.status_code != 200:
