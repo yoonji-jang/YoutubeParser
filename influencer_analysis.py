@@ -1,4 +1,6 @@
 from influencer_input_parser import parse_input_data
+from youtube_parser import run_search_contents
+from driver import *
 import requests
 import io
 import openpyxl
@@ -6,7 +8,7 @@ from openpyxl.drawing.image import Image
 from openpyxl.utils import get_column_letter
 import json
 from tqdm import tqdm
-from youtube_video_analysis import RequestChannelInfo, RequestVideoInfo, RequestChannelContentsInfo
+from youtube_video_analysis import RequestChannelInfo, RequestVideoInfo, get_id_from_href
 from bs4 import BeautifulSoup
 import re
 
@@ -71,15 +73,13 @@ def run_InfluencerAnalysis(sheet, start_row, start_col, end_row, dev_keys, max_r
             continue
             # here!
         channel_info = RequestChannelInfo(cID, dev_keys)
-        channel_contents_info = RequestChannelContentsInfo(dev_keys, cID, max_result)
-        if channel_contents_info == RETURN_ERR:
-            print("[Warning] channel_contents_info = RETURN_ERR")
-            continue
-        df_just_channel = GetChannelData(cID, channel_info, channel_contents_info, dev_keys)
+        channel_contents_thumbnails = run_search_contents(driver, cURL, max_result)
+        df_just_channel = GetChannelData(cID, channel_info, channel_contents_thumbnails, dev_keys, max_result)
         if df_just_channel == RETURN_ERR:
             print("[Warning] df_just_channel = RETURN_ERR")
             continue
         UpdateChannelInfoToExcel(sheet, row, start_col + 1, df_just_channel)
+    driver.quit()
 
 
 
@@ -138,7 +138,8 @@ def UpdateVideoInfoToExcel(sheet, r, start, data):
     InsertImage(sheet, data[vIndex.THUMBNAIL], r, start_c + vIndex.THUMBNAIL)
 
 
-def GetChannelData(cID, channel_info, channel_contents_info, dev_keys):
+def GetChannelData(cID, channel_info, channel_contents_thumbnails, dev_keys, max_result):
+    print(f"[Info] GetChannelData for cID = {cID}, max_result = {max_result}")
     arr = json.dumps(channel_info)
     jsonObject = json.loads(arr)
     if ((jsonObject.get('error')) or ('items' not in jsonObject)):
@@ -177,31 +178,40 @@ def GetChannelData(cID, channel_info, channel_contents_info, dev_keys):
     nView = 0
     nLike = 0
     nComment = 0
-    for content in channel_contents_info.get("items", []):
-        if ('id' in content):
-            contentId = content['id']
-            if ('kind' in contentId) and (contentId["kind"] != "youtube#video"):
-                print("[Warning] Type is not video!! check the input: " + cID)
-                return RETURN_ERR
-            vID = content["id"]["videoId"]
-            res_json = RequestVideoInfo(vID, dev_keys)
 
-            video_info = GetVideoData(vID, res_json, dev_keys)
-            if (video_info == RETURN_ERR):
-                return RETURN_ERR
-            view = int(video_info[vIndex.VIEW])
-            like = int(video_info[vIndex.LIKE])
-            comments = int(video_info[vIndex.COMMENTS])
+    nVideo = 0
+    for thumbnail in channel_contents_thumbnails:
+        #video
+        if (nVideo >= max_result):
+            print(f"[Info] Finish to calculate videos! number of video = {nVideo}")
+            break
+        href = thumbnail.attrs["href"]
+        vID = get_id_from_href(href)
+        if vID == None:
+            print(f"[Warning] video id is None for : {href}")
+            continue
 
-            if view > 0:
-                nViewCnt += view
-                nView += 1
-            if like > 0:
-                nLikeCnt += like
-                nLike += 1
-            if comments > 0:
-                nCommentCnt += comments
-                nComment += 1
+        res_json = RequestVideoInfo(vID, dev_keys)
+
+        video_info = GetVideoData(vID, res_json, dev_keys)
+        if (video_info == RETURN_ERR):
+            print("[Warning] video info returns error for vID : " + vID)
+            continue
+
+        view = int(video_info[vIndex.VIEW])
+        like = int(video_info[vIndex.LIKE])
+        comments = int(video_info[vIndex.COMMENTS])
+
+        if view > 0:
+            nViewCnt += view
+            nView += 1
+        if like > 0:
+            nLikeCnt += like
+            nLike += 1
+        if comments > 0:
+            nCommentCnt += comments
+            nComment += 1
+        nVideo += 1
 
     if nView > 0:
         ret[cIndex.POST_VIEW] = nViewCnt / nView
@@ -211,6 +221,7 @@ def GetChannelData(cID, channel_info, channel_contents_info, dev_keys):
         ret[cIndex.POST_COMMENT] = nCommentCnt / nComment
     if nViewCnt > 0:
         ret[cIndex.POST_ENGAGE] = ((nLikeCnt + nCommentCnt) / nViewCnt) * 100
+    print(f"[Info][GetChannelData] cID={cID}, nView={nView}, nLike={nLike}, nViewCnt={nViewCnt}")
     return ret
 
 

@@ -326,3 +326,4 @@ def run_BulkAnalysis(dev_keys, period_date_start, period_date_end, thumbnails):
 
         df_data.append(video_data)
     return df_data
+

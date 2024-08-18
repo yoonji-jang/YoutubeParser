@@ -168,3 +168,38 @@ def run_search_bulk(driver, driver_video, channel, period_date_start):
     thumbnails = soup.select("a#video-title-link")
     return thumbnails
 
+# search videos in youtube channel for number of videos
+def run_search_contents(driver, channel, max_result):
+    print("[Info] Start to parse youtube channel videos with max_result=", max_result)
+
+    url = channel + "/videos"
+    print("[Info] search : " + url)
+    driver.get(url)
+
+    num_video = 0
+    while True:
+        html = driver.page_source
+        soup = BeautifulSoup(html, "html.parser")
+
+        if num_video >= max_result:
+            print("[Info] Number of videos are enough. Stop scroll!!! : ")
+            break
+
+        try:
+            videos = soup.select("a#video-title-link")
+            if num_video == len(videos):
+                print(f"[Info][run_search_contents] No more results(num of videos = {num_video}). Stop scrolling!!!")
+                break
+            num_video = len(videos)
+            time.sleep(3)
+            print("[Info] scroll")
+        except Exception as exception:
+            print("[Warning] " + str(exception))
+            continue
+
+        driver.execute_script("window.scrollTo(0, document.getElementById('content').scrollHeight);")
+        time.sleep(SCROLL_PAUSE_SEC)
+    thumbnails = soup.select("a#video-title-link")
+    print(f"[Info][run_search_contents] return with {num_video} videos")
+    return thumbnails
+
