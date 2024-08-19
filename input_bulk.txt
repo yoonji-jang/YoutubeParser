@@ -1,0 +1,5 @@
+PERIOD_DATE_START=2022.01.01
+PERIOD_DATE_END=2024.07.30
+OUTPUT=output_output_tech_0708.xlsx
+DEV_KEY=
+CHANNEL=https://www.youtube.com/@ITSUB, https://www.youtube.com/@Underkg, https://www.youtube.com/@techmong, https://www.youtube.com/@MRMRMR, https://www.youtube.com/@zuyoni1, https://www.youtube.com/channel/UC5aNQ65ADb02zEJxzb_zmYQ, https://www.youtube.com/@the-edit-life, https://www.youtube.com/@BullsLab, https://www.youtube.com/@AIT, https://www.youtube.com/@seoulian
