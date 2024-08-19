@@ -128,7 +128,8 @@ def UpdateChannelInfoToExcel(sheet, r, start, data):
 
 def UpdateVideoInfoToExcel(sheet, r, start, data):
     start_c = start - 1
-    sheet.cell(row=r, column=start_c + vIndex.V_TITLE).value = '=HYPERLINK("{}", "{}")'.format(data[vIndex.V_URL], data[vIndex.V_TITLE])
+    # sheet.cell(row=r, column=start_c + vIndex.V_TITLE).value = '=HYPERLINK("{}", "{}")'.format(data[vIndex.V_URL], data[vIndex.V_TITLE])
+    sheet.cell(row=r, column=start_c + vIndex.V_TITLE).value = data[vIndex.V_TITLE]
     sheet.cell(row=r, column=start_c + vIndex.VIEW).value = round(float(data[vIndex.VIEW]), 2)
     sheet.cell(row=r, column=start_c + vIndex.LIKE).value = round(float(data[vIndex.LIKE]), 2)
     sheet.cell(row=r, column=start_c + vIndex.COMMENTS).value = round(float(data[vIndex.COMMENTS]), 2)
