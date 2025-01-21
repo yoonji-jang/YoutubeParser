@@ -42,6 +42,7 @@ def search_quasarzone(platform, driver, keyword, period_date_start):
         url = platform["url_subject"] + keyword.replace(" ", "+") + platform["page"] + str(page_num)
         print("[Info] date : " + date_str + ", search : " + url)
         driver.get(url)
+        time.sleep(3)
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
 
@@ -52,6 +53,7 @@ def search_quasarzone(platform, driver, keyword, period_date_start):
         try:
             posts = soup.find_all('div', class_='cont-wrap')
             if len(posts) == 0:
+                print("[Info] len(posts)==0")
                 break
             for post in posts:
                 # date
@@ -90,6 +92,7 @@ def search_coolenjoy(platform, driver, keyword, period_date_start):
         url = platform["url_subject"] + keyword.replace(" ", "+") + platform["page"] + str(page_num)
         print("[Info] date : " + date_str + ", search : " + url)
         driver.get(url)
+        time.sleep(3)
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
 
