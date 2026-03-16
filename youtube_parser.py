@@ -32,9 +32,9 @@ def run_search(driver, driver_video, keyword, filter, period_date_start):
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
 
-        if period_date_start > date_video:
-            print("[Info] Meet the date. Stop scroll!!! : ")
-            break
+#        if period_date_start > date_video:
+#            print("[Info] Meet the date. Stop scroll!!! : ")
+#            break
 
         if scroll_cnt%5 == 0:
             try:
