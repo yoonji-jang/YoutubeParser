@@ -275,7 +275,7 @@ def run_VideoAnalysis(keyword, dev_keys, period_date_start, period_date_end, thu
             if period_date_start > date_video:
                 continue
             if period_date_end < date_video:
-                break
+                continue
 
         cID = video_data['ChannelID']
         if cID == None:

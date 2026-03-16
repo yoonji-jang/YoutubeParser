@@ -5,14 +5,22 @@ from tqdm import tqdm
 
 SCROLL_PAUSE_SEC = 1
 # define environment
-latest = "&sp=CAI%253D"
+
+youtube_filter = {
+    'latest' : "&sp=CAI%253D",
+    'today' : "&sp=EgQIAhAB",
+    'this_week' : "&sp=EgIIAw%253D%253D",
+    'this_month' : "&sp=EgIIBA%253D%253D",
+    'this_year' : "&sp=EgIIBQ%253D%253D"
+}
+
 platform = "https://www.youtube.com"
 
 # search keyword in youtube in input period
-def run_search(driver, driver_video, keyword, period_date_start):
+def run_search(driver, driver_video, keyword, filter, period_date_start):
     print("[Info] Start to parse youtube information")
 
-    url = "https://www.youtube.com/results?search_query=" + keyword.replace(" ", "+") + latest
+    url = "https://www.youtube.com/results?search_query=" + keyword.replace(" ", "+") + youtube_filter.get(filter)
     print("[Info] search : " + url)
     driver.get(url)
 

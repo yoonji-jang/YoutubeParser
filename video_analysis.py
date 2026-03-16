@@ -8,16 +8,16 @@ from tqdm import tqdm
 
 def run_video_analysis(args):
     print("[Info] Run Video Analysis")
-    input_keywords, period_date_start, period_date_end, output_path, dev_keys = parse_input_data(args.input_txt)
-    video_analysis(input_keywords, period_date_start, period_date_end, output_path, dev_keys)
+    input_keywords, period_date_start, period_date_end, output_path, filter, dev_keys = parse_input_data(args.input_txt)
+    video_analysis(input_keywords, period_date_start, period_date_end, output_path, filter, dev_keys)
 
-def video_analysis(input_keywords, period_date_start, period_date_end, output_path, dev_keys):
+def video_analysis(input_keywords, period_date_start, period_date_end, output_path, filter, dev_keys):
     df_output_data = []
     for keyword in tqdm(input_keywords):
         print("[Info] search for " + keyword)
         print("[Info] search for " + time.strftime('%Y-%m-%d', period_date_start) + " ~ " + time.strftime('%Y-%m-%d', period_date_end))
 
-        thumbnails = run_search(driver, driver_video, keyword, period_date_start)
+        thumbnails = run_search(driver, driver_video, keyword, filter, period_date_start)
         # df_data = get_video_data(driver, keyword, period_date_start, period_date_end, thumbnails)
         df_data = run_VideoAnalysis(keyword, dev_keys, period_date_start, period_date_end, thumbnails)
         df_output_data += df_data
