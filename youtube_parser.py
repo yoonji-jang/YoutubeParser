@@ -199,7 +199,7 @@ def run_search_contents(driver, channel, max_result):
             break
 
         try:
-            videos = soup.select("a#video-title-link")
+            videos = soup.select("#content > yt-lockup-view-model > div")
             if num_video == len(videos):
                 print(f"[Info][run_search_contents] No more results(num of videos = {num_video}). Stop scrolling!!!")
                 break
@@ -212,7 +212,8 @@ def run_search_contents(driver, channel, max_result):
 
         driver.execute_script("window.scrollTo(0, document.getElementById('content').scrollHeight);")
         time.sleep(SEC_SCROLL_PAUSE)
-    thumbnails = soup.select("a#video-title-link")
+    # thumbnails = soup.select("a#video-title-link")
+    thumbnails = soup.select("#content > yt-lockup-view-model > div > div > yt-lockup-metadata-view-model > div.ytLockupMetadataViewModelTextContainer > h3 > a")
     print(f"[Info][run_search_contents] return with {num_video} videos")
     return thumbnails
 
