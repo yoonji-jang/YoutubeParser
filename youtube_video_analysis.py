@@ -250,7 +250,7 @@ def run_VideoAnalysis(keyword, dev_keys, period_date_start, period_date_end, thu
     df_data = []
     print("[Info] Running Youtube Video Analysis")
     print("[Info] list size = " +  str(len(thumbnails)))
-    thumbnails.reverse()
+    # thumbnails.reverse()
     for thumbnail in tqdm(thumbnails):
         #video
         href = thumbnail.attrs["href"]
@@ -297,7 +297,7 @@ def run_BulkAnalysis(dev_keys, period_date_start, period_date_end, thumbnails):
     df_data = []
     print("[Info] Running Youtube Channel Videos Bulk Analysis")
     print("[Info] list size = " +  str(len(thumbnails)))
-    thumbnails.reverse()
+    # thumbnails.reverse()
     for thumbnail in tqdm(thumbnails):
         #video
         href = thumbnail.attrs["href"]

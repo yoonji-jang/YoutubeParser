@@ -3,16 +3,21 @@ import time
 import re
 from tqdm import tqdm
 
-SCROLL_PAUSE_SEC = 1
+SEC_SCROLL_PAUSE = 1
+SEC_GET_VIDEODATA = 3
+
+CNT_SCROLL_CHECK = 10
+# SEC_GET_PAGE = 1
 # define environment
 
 youtube_filter = {
     'latest' : "&sp=CAI%253D",
     'today' : "&sp=EgQIAhAB",
-    'this_week' : "&sp=EgIIAw%253D%253D",
-    'this_month' : "&sp=EgIIBA%253D%253D",
-    'this_year' : "&sp=EgIIBQ%253D%253D"
+    'this_week' : "&sp=EgQIAxAB",
+    'this_month' : "&sp=EgQIBBAB",
+    'this_year' : "&sp=EgQIBRAB"
 }
+
 
 platform = "https://www.youtube.com"
 
@@ -35,39 +40,39 @@ def run_search(driver, driver_video, keyword, filter, period_date_start):
 #        if period_date_start > date_video:
 #            print("[Info] Meet the date. Stop scroll!!! : ")
 #            break
-
-        if scroll_cnt%5 == 0:
+        if scroll_cnt%CNT_SCROLL_CHECK == 0:
             try:
                 href = soup.select("a#video-title")[-1].attrs["href"]
                 if last_video_href == href:
                     print("[Info] No more results. Stop scrolling!!!")
                     break
                 last_video_href = href
-                last_video_url = "https://www.youtube.com" + last_video_href
-                driver_video.get(last_video_url)
-                time.sleep(3)
-                html_video = driver_video.page_source
-                soup_video = BeautifulSoup(html_video, "html.parser")
-                date_video_str = soup_video.select_one("#info-strings > yt-formatted-string")
-                print("[Info] scroll")
-                if date_video_str != None and len(date_video_str) > 0:
-                    date_video_list = re.findall("\d+. \d+. \d+", date_video_str.get_text())
-                    if len(date_video_list) > 0:
-                        date_str = date_video_list[0]
-                        date_video = time.strptime(date_str, "%Y. %m. %d")
-                        print("[Info] current scroll date : " + date_str)
+                print("[Info] scroll. CNT_SCROLL_CHECK = " + str(CNT_SCROLL_CHECK) + ", scroll_cnt = " + str(scroll_cnt))
+                # last_video_url = "https://www.youtube.com" + last_video_href
+                # driver_video.get(last_video_url)
+                # time.sleep(SEC_GET_PAGE)
+                # html_video = driver_video.page_source
+                # soup_video = BeautifulSoup(html_video, "html.parser")
+                # date_video_str = soup_video.select_one("#info-strings > yt-formatted-string")
+                # print("[Info] scroll")
+                # if date_video_str != None and len(date_video_str) > 0:
+                #     date_video_list = re.findall("\d+. \d+. \d+", date_video_str.get_text())
+                #     if len(date_video_list) > 0:
+                #         date_str = date_video_list[0]
+                #         date_video = time.strptime(date_str, "%Y. %m. %d")
+                #         print("[Info] current scroll date : " + date_str)
             except Exception as exception:
                 print("[Warning] " + str(exception))
                 continue
         driver.execute_script("window.scrollTo(0, document.getElementById('content').scrollHeight);")
-        time.sleep(SCROLL_PAUSE_SEC)
+        time.sleep(SEC_SCROLL_PAUSE)
         scroll_cnt+=1
     thumbnails = soup.select("a#video-title")
     return thumbnails
 
 def get_video_data(driver, keyword, period_date_start, period_date_end, thumbnails):
     df_data = []
-    thumbnails.reverse()
+    # thumbnails.reverse()
     for thumbnail in tqdm(thumbnails):
         link = "https://www.youtube.com" + thumbnail.attrs["href"]
         title = thumbnail.attrs["title"]
@@ -75,7 +80,7 @@ def get_video_data(driver, keyword, period_date_start, period_date_end, thumbnai
         print(title + ": " + title)
 
         driver.get(link)
-        time.sleep(5)
+        time.sleep(SEC_GET_VIDEODATA)
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
 
@@ -156,7 +161,7 @@ def run_search_bulk(driver, driver_video, channel, period_date_start):
                 last_video_href = href
                 last_video_url = "https://www.youtube.com" + last_video_href
                 driver_video.get(last_video_url)
-                time.sleep(3)
+                time.sleep(SEC_GET_VIDEODATA)
                 html_video = driver_video.page_source
                 soup_video = BeautifulSoup(html_video, "html.parser")
                 date_video_str = soup_video.select_one("#info-strings > yt-formatted-string")
@@ -171,7 +176,7 @@ def run_search_bulk(driver, driver_video, channel, period_date_start):
                 print("[Warning] " + str(exception))
                 continue
         driver.execute_script("window.scrollTo(0, document.getElementById('content').scrollHeight);")
-        time.sleep(SCROLL_PAUSE_SEC)
+        time.sleep(SEC_SCROLL_PAUSE)
         scroll_cnt+=1
     thumbnails = soup.select("a#video-title-link")
     return thumbnails
@@ -199,14 +204,14 @@ def run_search_contents(driver, channel, max_result):
                 print(f"[Info][run_search_contents] No more results(num of videos = {num_video}). Stop scrolling!!!")
                 break
             num_video = len(videos)
-            time.sleep(3)
+            time.sleep(SEC_GET_VIDEODATA)
             print("[Info] scroll")
         except Exception as exception:
             print("[Warning] " + str(exception))
             continue
 
         driver.execute_script("window.scrollTo(0, document.getElementById('content').scrollHeight);")
-        time.sleep(SCROLL_PAUSE_SEC)
+        time.sleep(SEC_SCROLL_PAUSE)
     thumbnails = soup.select("a#video-title-link")
     print(f"[Info][run_search_contents] return with {num_video} videos")
     return thumbnails

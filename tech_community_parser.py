@@ -3,7 +3,6 @@ import time
 import re
 from urllib.parse import urljoin
 
-SCROLL_PAUSE_SEC = 1
 # define environment
 platform_list = [
     {"name": "quasarzone", "url_subject": "https://quasarzone.com/groupSearches?kind=subject&keyword=", "url_subject_content": "https://quasarzone.com/groupSearches?kind=subject%7C%7Ccontent&keyword=", "page": "&page="},
