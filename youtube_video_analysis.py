@@ -7,6 +7,8 @@ from urllib.parse import urlparse, parse_qs
 import time
 from tqdm import tqdm
 
+session = requests.Session()
+
 def make_enum(*sequential, **named):
     enums = dict(zip(sequential, range(len(sequential))), **named)
     return type('Enum', (), enums)
@@ -67,7 +69,7 @@ def RequestYoutubeAPI(request_url_prefix, dev_keys):
             print("[Error] No more developer keys available")
             return RETURN_ERR
         request_url = f"{request_url_prefix}&key={dev_key}"
-        response = requests.get(request_url).json()
+        response = session.get(request_url).json()
         if "quotaExceeded" in str(response):
             print("[Info] Quota exceeded : " + dev_key + ". Retry with next key")
             UseNextDevKey()
