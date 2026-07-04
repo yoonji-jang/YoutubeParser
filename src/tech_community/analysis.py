@@ -1,9 +1,9 @@
 import time
-from tech_community_input_parser import parse_input_data
-from driver import *
-from tech_community_parser import run_search
-from tech_community_post_analysis import run_TechCommunityAnalysis
-from excel_func import make_excel
+from src.tech_community.input_parser import parse_input_data
+from src.core.driver import *
+from src.tech_community.parser import run_search
+from src.tech_community.post_analysis import run_TechCommunityAnalysis
+from src.core.excel_func import make_excel
 from tqdm import tqdm
 
 def run_tech_community_analysis(args):

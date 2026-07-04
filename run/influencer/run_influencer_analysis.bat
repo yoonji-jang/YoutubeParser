@@ -2,5 +2,5 @@
 ::--yv (youtube video)
 
 :: .\InfluencerAnalysis --yc --yv
-cmd/k YoutubeParser.exe --ia -input input_influencer.txt --yc
+cmd/k ..\..\YoutubeParser.exe --ia -input input_influencer.txt --yv
 pause

@@ -1,9 +1,9 @@
 import time
-from bulk_input_parser import parse_input_data
-from driver import *
-from youtube_parser import run_search_bulk
-from youtube_video_analysis import run_BulkAnalysis
-from excel_func import make_excel
+from src.bulk.input_parser import parse_input_data
+from src.core.driver import *
+from src.core.youtube_parser import run_search_bulk
+from src.core.youtube_video_analysis import run_BulkAnalysis
+from src.core.excel_func import make_excel
 from tqdm import tqdm
 
 def run_channel_bulk_analysis(args):

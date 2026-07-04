@@ -1,6 +1,6 @@
-from influencer_input_parser import parse_input_data
-from youtube_parser import run_search_contents
-from driver import *
+from src.influencer.input_parser import parse_input_data
+from src.core.youtube_parser import run_search_contents
+from src.core.driver import *
 import requests
 import io
 import openpyxl
@@ -8,7 +8,7 @@ from openpyxl.drawing.image import Image
 from openpyxl.utils import get_column_letter
 import json
 from tqdm import tqdm
-from youtube_video_analysis import RequestChannelInfo, RequestVideoInfo, get_id_from_href
+from src.core.youtube_video_analysis import RequestChannelInfo, RequestVideoInfo, get_id_from_href
 from bs4 import BeautifulSoup
 import re
 

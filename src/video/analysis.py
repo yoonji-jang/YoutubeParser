@@ -1,9 +1,9 @@
 import time
-from video_input_parser import parse_input_data
-from driver import *
-from youtube_parser import run_search, get_video_data
-from youtube_video_analysis import run_VideoAnalysis
-from excel_func import make_excel
+from src.video.input_parser import parse_input_data
+from src.core.driver import *
+from src.core.youtube_parser import run_search, get_video_data
+from src.core.youtube_video_analysis import run_VideoAnalysis
+from src.core.excel_func import make_excel
 from tqdm import tqdm
 
 def run_video_analysis(args):

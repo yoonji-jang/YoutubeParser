@@ -1,8 +1,8 @@
 import argparse
-from video_analysis import run_video_analysis
-from influencer_analysis import run_influencer_analysis
-from bulk_analysis import run_channel_bulk_analysis
-from tech_community_analysis import run_tech_community_analysis
+from src.video.analysis import run_video_analysis
+from src.influencer.analysis import run_influencer_analysis
+from src.bulk.analysis import run_channel_bulk_analysis
+from src.tech_community.analysis import run_tech_community_analysis
 
 # 1. print version info
 VERSION = 8.2
