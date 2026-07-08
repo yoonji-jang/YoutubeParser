@@ -248,6 +248,17 @@ def get_video_data_simple(vID, href, input_json):
 
 
 vIDs = []
+_skip_count = 0
+
+def _skip_duplicate_video(vID):
+    # Uses \r (no newline) like tqdm's own progress refresh, so it renders as a
+    # single overwriting status line instead of flooding the console/log with one
+    # line per skipped video.
+    global _skip_count
+    _skip_count += 1
+    print(f"\r[Info] Skip duplicated video id (skipped {_skip_count} total so far)", end="", flush=True)
+
+
 def run_VideoAnalysis(keyword, dev_keys, period_date_start, period_date_end, thumbnails):
     df_data = []
     print("[Info] Running Youtube Video Analysis")
@@ -261,7 +272,7 @@ def run_VideoAnalysis(keyword, dev_keys, period_date_start, period_date_end, thu
             print("[Warning] video id is None for : " + href)
             continue
         if vID in vIDs:
-            print("[Info] Skip duplicated video id: " + vID)
+            _skip_duplicate_video(vID)
             continue
         vIDs.append(vID)
 
@@ -308,7 +319,7 @@ def run_BulkAnalysis(dev_keys, period_date_start, period_date_end, thumbnails):
             print("[Warning] video id is None for : " + href)
             continue
         if vID in vIDs:
-            print("[Info] Skip duplicated video id: " + vID)
+            _skip_duplicate_video(vID)
             continue
         vIDs.append(vID)
 

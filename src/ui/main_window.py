@@ -1,9 +1,11 @@
 import os
+import re
 
 from PyQt5.QtCore import Qt, QProcess, QProcessEnvironment
 from PyQt5.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
+    QLabel,
     QListWidget,
     QMainWindow,
     QPlainTextEdit,
@@ -30,6 +32,11 @@ NAV_ITEMS = [
     "테크 커뮤니티 분석",
     "API 키 관리",
 ]
+
+# tqdm's default bar: " 42%|████████            | 42/100 [00:01<00:02, 21.05it/s]"
+PROGRESS_RE = re.compile(r"(\d+)%\|.*?\|\s*(\d+)/(\d+)")
+# "[Info] Skip duplicated video id (skipped 37 total so far)"
+SKIP_RE = re.compile(r"Skip duplicated video id \(skipped (\d+) total")
 
 
 class MainWindow(QMainWindow):
@@ -76,6 +83,12 @@ class MainWindow(QMainWindow):
         self.progress_bar = QProgressBar()
         self.progress_bar.setRange(0, 0)
         self.progress_bar.setVisible(False)
+        self.progress_label = QLabel()
+        self.progress_label.setMinimumWidth(160)
+        self.progress_label.setVisible(False)
+        self.skip_label = QLabel()
+        self.skip_label.setMinimumWidth(120)
+        self.skip_label.setVisible(False)
 
         bottom_bar = QHBoxLayout()
         bottom_bar.addWidget(self.load_button)
@@ -83,6 +96,8 @@ class MainWindow(QMainWindow):
         bottom_bar.addWidget(self.run_button)
         bottom_bar.addWidget(self.stop_button)
         bottom_bar.addWidget(self.progress_bar)
+        bottom_bar.addWidget(self.progress_label)
+        bottom_bar.addWidget(self.skip_label)
         bottom_bar.addStretch()
 
         right_layout = QVBoxLayout()
@@ -99,6 +114,7 @@ class MainWindow(QMainWindow):
 
         self.process = None
         self._pending_config_path = None
+        self._output_buffer = ""
 
         self.nav_list.currentRowChanged.connect(self._on_nav_changed)
         self.run_button.clicked.connect(self._on_run_clicked)
@@ -151,6 +167,10 @@ class MainWindow(QMainWindow):
             return
 
         self._pending_config_path = config_path
+        self._output_buffer = ""
+        self.progress_bar.setRange(0, 0)
+        self.progress_label.setText("")
+        self.skip_label.setText("")
         self._log(f"[Info] '{mode_name}' 실행을 시작합니다.")
 
         self.process = QProcess(self)
@@ -179,11 +199,55 @@ class MainWindow(QMainWindow):
             return
         data = bytes(self.process.readAllStandardOutput())
         text = data.decode("utf-8", errors="replace")
-        for line in text.splitlines():
-            if line.strip():
-                self._log(line)
+        # Normalize Windows line endings first so a bare leftover "\r" can only mean
+        # an in-place refresh (e.g. tqdm), never a real line ending.
+        self._output_buffer += text.replace("\r\n", "\n")
+
+        while True:
+            newline_idx = self._output_buffer.find("\n")
+            cr_idx = self._output_buffer.find("\r")
+            if newline_idx == -1 and cr_idx == -1:
+                break
+            if cr_idx != -1 and (newline_idx == -1 or cr_idx < newline_idx):
+                segment, self._output_buffer = self._output_buffer[:cr_idx], self._output_buffer[cr_idx + 1:]
+                self._update_progress(segment)
+            else:
+                segment, self._output_buffer = self._output_buffer[:newline_idx], self._output_buffer[newline_idx + 1:]
+                if not segment.strip():
+                    continue
+                # tqdm's final refresh on loop close is "\n"-terminated (unlike every
+                # earlier "\r" tick) -- route it to the progress UI too, not the log,
+                # so it doesn't duplicate what the progress bar/label already show.
+                if PROGRESS_RE.search(segment) or SKIP_RE.search(segment):
+                    self._update_progress(segment)
+                else:
+                    self._log(segment)
+
+    def _update_progress(self, text):
+        text = text.strip()
+        if not text:
+            return
+        skip_match = SKIP_RE.search(text)
+        if skip_match:
+            self.skip_label.setText(f"중복 스킵: {skip_match.group(1)}건")
+            return
+        match = PROGRESS_RE.search(text)
+        if match:
+            percent, current, total = match.groups()
+            self.progress_bar.setRange(0, 100)
+            self.progress_bar.setValue(int(percent))
+            self.progress_label.setText(f"{current}/{total} ({percent}%)")
+        else:
+            self.progress_label.setText(text)
+
+    def _flush_output_buffer(self):
+        remaining = self._output_buffer.strip()
+        self._output_buffer = ""
+        if remaining:
+            self._log(remaining)
 
     def _on_process_finished(self, exit_code, exit_status):
+        self._flush_output_buffer()
         if exit_code == 0:
             self._log("[Info] 실행이 완료되었습니다.")
         else:
@@ -201,6 +265,7 @@ class MainWindow(QMainWindow):
                 pass
             self._pending_config_path = None
         self.process = None
+        self._output_buffer = ""
         self._set_running(False)
 
     def _set_running(self, running):
@@ -210,6 +275,11 @@ class MainWindow(QMainWindow):
         self.save_button.setEnabled(not running)
         self.nav_list.setEnabled(not running)
         self.progress_bar.setVisible(running)
+        self.progress_label.setVisible(running)
+        self.skip_label.setVisible(running)
+        if not running:
+            self.progress_label.setText("")
+            self.skip_label.setText("")
 
     def _on_load_clicked(self):
         current_page = self.pages.currentWidget()
