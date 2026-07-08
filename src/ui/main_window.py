@@ -274,12 +274,10 @@ class MainWindow(QMainWindow):
         self.load_button.setEnabled(not running)
         self.save_button.setEnabled(not running)
         self.nav_list.setEnabled(not running)
-        self.progress_bar.setVisible(running)
-        self.progress_label.setVisible(running)
-        self.skip_label.setVisible(running)
-        if not running:
-            self.progress_label.setText("")
-            self.skip_label.setText("")
+        if running:
+            self.progress_bar.setVisible(True)
+            self.progress_label.setVisible(True)
+            self.skip_label.setVisible(True)
 
     def _on_load_clicked(self):
         current_page = self.pages.currentWidget()
