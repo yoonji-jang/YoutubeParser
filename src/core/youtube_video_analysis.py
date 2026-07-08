@@ -69,7 +69,13 @@ def RequestYoutubeAPI(request_url_prefix, dev_keys):
             print("[Error] No more developer keys available")
             return RETURN_ERR
         request_url = f"{request_url_prefix}&key={dev_key}"
-        response = session.get(request_url).json()
+        try:
+            response = session.get(request_url).json()
+        except Exception as exception:
+            print("[Error] HTTP 요청 실패, 이 항목은 건너뜁니다.")
+            print("[Error] " + str(exception))
+            print("request_url=" + request_url_prefix)
+            return {"error": {"code": -1, "message": str(exception)}}
         if "quotaExceeded" in str(response):
             print("[Info] Quota exceeded : " + dev_key + ". Retry with next key")
             UseNextDevKey()

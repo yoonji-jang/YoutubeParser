@@ -5,7 +5,12 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
 release = "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"
-version = requests.get(release).text
+try:
+    version = requests.get(release).text
+except Exception as exception:
+    print("[Error] HTTP 요청 실패, 건너뜁니다.")
+    print("[Error] " + str(exception))
+    version = None
 # define environment
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("headless")

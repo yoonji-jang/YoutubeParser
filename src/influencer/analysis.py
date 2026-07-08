@@ -93,7 +93,13 @@ cIndex = make_enum('URL', 'PROFILE_IMG', 'TITLE', 'SUBSCRIBER', 'POST_VIEW', 'PO
 
 
 def get_channel_id(channel_url):
-    response = requests.get(channel_url)
+    try:
+        response = requests.get(channel_url)
+    except Exception as exception:
+        print("[Error] HTTP 요청 실패, 이 항목은 건너뜁니다.")
+        print("[Error] " + str(exception))
+        print("channel_url=" + str(channel_url))
+        return None
     if response.status_code != 200:
         return None
 
@@ -107,7 +113,13 @@ def get_channel_id(channel_url):
     return None
 
 def get_video_id(youtube_url):
-    response = requests.get(youtube_url)
+    try:
+        response = requests.get(youtube_url)
+    except Exception as exception:
+        print("[Error] HTTP 요청 실패, 이 항목은 건너뜁니다.")
+        print("[Error] " + str(exception))
+        print("youtube_url=" + str(youtube_url))
+        return None
     html_content = response.text
     id_pattern = 'videoId\":\"'
     index = html_content.find(id_pattern)
@@ -283,7 +295,13 @@ def InsertImage(sheet, img_url, row, col):
     image_scale = 10
     if (img_url == ""):
         return
-    response = requests.get(img_url)
+    try:
+        response = requests.get(img_url)
+    except Exception as exception:
+        print("[Error] 썸네일 이미지 요청 실패, 이 이미지는 건너뜁니다.")
+        print("[Error] " + str(exception))
+        print("img_url=" + str(img_url))
+        return
     img_file = io.BytesIO(response.content)
     thumbnailImage = Image(img_file)
     thumbnailImage.width /= image_scale
