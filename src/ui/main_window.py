@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from src.core.version import VERSION
 from src.ui.config_io import read_key_value_txt, write_key_value_txt
 from src.ui.pages.api_key_page import ApiKeyPage
 from src.ui.pages.bulk_page import BulkPage
@@ -42,7 +43,7 @@ SKIP_RE = re.compile(r"Skip duplicated video id \(skipped (\d+) total")
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("YoutubeParser")
+        self.setWindowTitle(f"YoutubeParser v{VERSION}")
         self.resize(1000, 700)
 
         self.nav_list = QListWidget()
@@ -99,6 +100,8 @@ class MainWindow(QMainWindow):
         bottom_bar.addWidget(self.progress_label)
         bottom_bar.addWidget(self.skip_label)
         bottom_bar.addStretch()
+        self.version_label = QLabel(f"v{VERSION}")
+        bottom_bar.addWidget(self.version_label)
 
         right_layout = QVBoxLayout()
         right_layout.addWidget(splitter)

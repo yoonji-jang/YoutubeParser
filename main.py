@@ -3,10 +3,10 @@ from src.video.analysis import run_video_analysis
 from src.influencer.analysis import run_influencer_analysis
 from src.bulk.analysis import run_channel_bulk_analysis
 from src.tech_community.analysis import run_tech_community_analysis
+from src.core.version import VERSION
 
 # 1. print version info
-VERSION = 8.2
-print("[Info] YoutubeParser V" + str(VERSION))
+print("[Info] YoutubeParser V" + VERSION)
 
 # 2. parse argument
 parser = argparse.ArgumentParser()
