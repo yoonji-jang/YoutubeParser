@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
     QLabel,
     QListWidget,
     QMainWindow,
+    QMessageBox,
     QPlainTextEdit,
     QProgressBar,
     QPushButton,
@@ -38,6 +39,18 @@ NAV_ITEMS = [
 PROGRESS_RE = re.compile(r"(\d+)%\|.*?\|\s*(\d+)/(\d+)")
 # "[Info] Skip duplicated video id (skipped 37 total so far)"
 SKIP_RE = re.compile(r"Skip duplicated video id \(skipped (\d+) total")
+
+# Config keys each mode's process needs a non-empty value for before it's worth launching.
+REQUIRED_FIELDS = {
+    "video": [("DEV_KEY", "API 키 (API 키 관리 탭)"), ("OUTPUT", "출력 파일 경로")],
+    "bulk": [("DEV_KEY", "API 키 (API 키 관리 탭)"), ("OUTPUT", "출력 파일 경로")],
+    "influencer": [
+        ("DEV_KEY", "API 키 (API 키 관리 탭)"),
+        ("INPUT_EXCEL", "입력 엑셀 경로"),
+        ("OUTPUT_EXCEL", "출력 엑셀 경로"),
+    ],
+    "tech_community": [("OUTPUT", "출력 파일 경로")],
+}
 
 
 class MainWindow(QMainWindow):
@@ -70,9 +83,21 @@ class MainWindow(QMainWindow):
         self.log_console.setReadOnly(True)
         self.log_console.setPlaceholderText("실행 로그가 여기에 표시됩니다.")
 
+        self.save_log_button = QPushButton("로그 저장")
+
+        log_panel = QWidget()
+        log_layout = QVBoxLayout()
+        log_layout.setContentsMargins(0, 0, 0, 0)
+        log_header = QHBoxLayout()
+        log_header.addStretch()
+        log_header.addWidget(self.save_log_button)
+        log_layout.addLayout(log_header)
+        log_layout.addWidget(self.log_console)
+        log_panel.setLayout(log_layout)
+
         splitter = QSplitter(Qt.Vertical)
         splitter.addWidget(self.pages)
-        splitter.addWidget(self.log_console)
+        splitter.addWidget(log_panel)
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 1)
 
@@ -124,6 +149,7 @@ class MainWindow(QMainWindow):
         self.stop_button.clicked.connect(self._on_stop_clicked)
         self.load_button.clicked.connect(self._on_load_clicked)
         self.save_button.clicked.connect(self._on_save_clicked)
+        self.save_log_button.clicked.connect(self._on_save_log_clicked)
         self.nav_list.setCurrentRow(0)
 
         self._log("[Info] YoutubeParser UI 준비 완료")
@@ -153,6 +179,10 @@ class MainWindow(QMainWindow):
             return "influencer", flags
         return None, []
 
+    def _missing_required_fields(self, mode, config_pairs):
+        config = dict(config_pairs)
+        return [label for key, label in REQUIRED_FIELDS.get(mode, []) if not config.get(key, "").strip()]
+
     def _on_run_clicked(self):
         if self.process is not None:
             return
@@ -164,6 +194,18 @@ class MainWindow(QMainWindow):
         mode_name = self.nav_list.currentItem().text()
         try:
             config_pairs = current_page.to_config()
+        except Exception as exc:
+            self._log(f"[Error] 실행 준비 중 오류가 발생했습니다: {exc}")
+            return
+
+        missing = self._missing_required_fields(mode, config_pairs)
+        if missing:
+            message = "다음 항목을 입력해야 실행할 수 있습니다:\n- " + "\n- ".join(missing)
+            self._log(f"[Warning] 실행이 취소되었습니다. 누락된 항목: {', '.join(missing)}")
+            QMessageBox.warning(self, "필수 항목 누락", message)
+            return
+
+        try:
             program, args, work_dir, config_path = build_process_args(mode, config_pairs, extra_flags)
         except Exception as exc:
             self._log(f"[Error] 실행 준비 중 오류가 발생했습니다: {exc}")
@@ -310,6 +352,20 @@ class MainWindow(QMainWindow):
             self._log(f"[Error] 입력 파일을 저장하지 못했습니다: {exc}")
             return
         self._log(f"[Info] 입력 파일로 저장했습니다: {path}")
+
+    def _on_save_log_clicked(self):
+        path, _ = QFileDialog.getSaveFileName(
+            self, "로그 저장", "log.txt", "Text Files (*.txt);;All Files (*)"
+        )
+        if not path:
+            return
+        try:
+            with open(path, "w", encoding="utf-8-sig") as f:
+                f.write(self.log_console.toPlainText())
+        except OSError as exc:
+            self._log(f"[Error] 로그를 저장하지 못했습니다: {exc}")
+            return
+        self._log(f"[Info] 로그를 저장했습니다: {path}")
 
     def _log(self, message):
         self.log_console.appendPlainText(message)
